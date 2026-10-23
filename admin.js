@@ -76,7 +76,8 @@ function renderBookings() {
       "Location: " + (item.location || "Not provided"),
       "Budget: " + (item.budget_range || "Not provided"),
       "Phone: " + (item.client_phone || "Not provided"),
-      "Referral: " + (item.referral_source || "Not provided")
+      "Referral: " + (item.referral_source || "Not provided"),
+      ...(status === "declined" && item.decline_reason ? ["Decline reason: " + item.decline_reason] : [])
     ].join("\n");
     const buttons = status === "pending"
       ? '<button class="approve" data-action="approved" data-id="' + escapeHtml(item.id) + '">Approve</button><button data-action="declined" data-id="' + escapeHtml(item.id) + '">Decline</button>'
@@ -123,7 +124,7 @@ function renderCalendarDay() {
   }
   calendarDayBookings.innerHTML = dayBookings.map(item => {
     const status = ["pending","approved","declined","cancelled"].includes(item.status) ? item.status : "pending";
-    return '<article class="calendar-booking"><div><strong>' + escapeHtml(item.client_name) + '</strong><span>' + escapeHtml(item.service) + '</span></div><span class="status-pill ' + status + '">' + escapeHtml(status) + '</span><p>' + escapeHtml(item.client_email) + '</p></article>';
+    return '<article class="calendar-booking"><div><strong>' + escapeHtml(item.client_name) + '</strong><span>' + escapeHtml(item.service) + '</span></div><span class="status-pill ' + status + '">' + escapeHtml(status) + '</span><p>' + escapeHtml(item.client_email) + '</p>' + (status === "declined" && item.decline_reason ? '<p class="decline-reason"><strong>Decline reason:</strong> ' + escapeHtml(item.decline_reason) + '</p>' : '') + '</article>';
   }).join("");
 }
 document.querySelector("#calendar-previous").addEventListener("click", () => {
@@ -178,6 +179,16 @@ bookingList.addEventListener("click", async event => {
   if (!button || !supabase) return;
   const id = button.dataset.id;
   const status = button.dataset.action;
+  let declineReason = "";
+  if (status === "declined") {
+    const enteredReason = window.prompt("Why are you declining this booking? Please give the client a clear explanation.");
+    if (enteredReason === null) return;
+    declineReason = enteredReason.trim();
+    if (!declineReason) {
+      window.alert("Please enter a reason before declining this booking.");
+      return;
+    }
+  }
   if (status === "approved") {
     const selected = bookings.find(item => item.id === id);
     const conflict = bookings.find(item => item.id !== id && item.status === "approved" && item.requested_date === selected?.requested_date);
@@ -185,9 +196,10 @@ bookingList.addEventListener("click", async event => {
   }
   button.disabled = true;
   try {
-    const {error} = await supabase.from("bookings").update({status}).eq("id", id);
+    const update = {status, decline_reason: status === "declined" ? declineReason : null};
+    const {error} = await supabase.from("bookings").update(update).eq("id", id);
     if (error) throw error;
-    showMessage(dashboardMessage, "Booking updated and moved to the " + status + " tab.");
+    showMessage(dashboardMessage, status === "declined" ? "Booking declined and the reason was saved." : "Booking updated and moved to the " + status + " tab.");
     await loadBookings();
   } catch (error) {
     showMessage(dashboardMessage, "Couldn't update this booking. Check admin permissions and try again.", true);
