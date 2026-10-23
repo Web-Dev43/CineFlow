@@ -56,3 +56,11 @@ form.addEventListener("submit", async (event) => {
     submitButton.querySelector("span").textContent = "Send booking request";
   }
 });
+
+// Register the app shell service worker for installability and offline fallback.
+if ("serviceWorker" in navigator && location.protocol === "https:") {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./sw.js", { scope: "./" })
+      .catch((error) => console.warn("CineFlow offline support could not be enabled:", error));
+  });
+}
