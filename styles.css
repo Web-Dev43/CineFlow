@@ -82,3 +82,42 @@ h2{font-size:clamp(24px,4vw,32px);letter-spacing:-.04em;margin-bottom:0}
 [hidden]{display:none!important}
 @media(max-width:640px){.site-header,.page-shell,.admin-shell{width:calc(100% - 28px)}.site-header{min-height:70px}.brand{font-size:12px}.brand-mark{width:34px;height:34px}.header-link{font-size:11px}.intro{padding:55px 0 30px}h1{font-size:clamp(39px,12vw,58px)}.intro-copy{font-size:14px}.form-card{padding:20px 16px}.field-grid{grid-template-columns:1fr;gap:17px}.form-heading{gap:8px}.step-label{font-size:9px}.site-footer{font-size:10px}.admin-shell{padding-top:38px}.admin-top{align-items:center}.admin-top h1{font-size:36px}.booking-card{padding:15px}.booking-card-top{flex-direction:column}.dashboard-toolbar{align-items:flex-start;flex-direction:column}.auth-card{padding:21px}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important}}
+/* Owner booking calendar */
+.calendar-panel{border:1px solid var(--line);background:linear-gradient(145deg,#121212,#0d0d0d);border-radius:var(--radius);padding:clamp(16px,3vw,28px);margin:22px 0 34px}
+.calendar-panel-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:20px}
+.calendar-panel-heading .eyebrow{margin-bottom:8px}
+.calendar-panel-heading h2{margin:0 0 8px}
+.calendar-subtitle{color:var(--muted);font-size:12px;line-height:1.5;margin:0}
+.calendar-nav{display:flex;align-items:center;gap:10px}
+.calendar-nav strong{font:600 13px 'Space Grotesk',sans-serif;min-width:125px;text-align:center}
+.calendar-nav button:disabled{opacity:.35;cursor:not-allowed}
+.calendar-legend{display:flex;flex-wrap:wrap;gap:14px;margin:22px 0 14px;color:var(--muted);font-size:10px}
+.calendar-legend span{display:flex;align-items:center;gap:6px}
+.calendar-legend .calendar-dot{display:inline-block;width:7px;height:7px;border-radius:50%}
+.calendar-weekdays,.calendar-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px}
+.calendar-weekdays{margin-bottom:7px}
+.calendar-weekdays span{text-align:center;color:#8c8982;font-size:10px;padding:7px 0}
+.calendar-cell{min-width:0;min-height:58px;border-radius:9px}
+.calendar-blank{background:transparent}
+.calendar-day{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:7px;padding:9px 2px 5px;background:#151515;border:1px solid #292929;color:var(--text);cursor:pointer}
+.calendar-day:hover{border-color:#778d3b;background:#1a1e14}
+.calendar-day.selected{border-color:var(--accent);background:#202715;box-shadow:inset 0 0 0 1px #d7ff6433}
+.calendar-day.today .calendar-number{color:var(--accent);font-weight:700}
+.calendar-number{font-size:12px;line-height:1.2}
+.calendar-dots{min-height:7px;display:flex;justify-content:center;align-items:center;gap:3px;flex-wrap:wrap;max-width:100%}
+.calendar-dot{width:6px;height:6px;display:inline-block;border-radius:50%;background:#8e8e8e;flex:none}
+.calendar-dot.pending{background:#f3d58a}
+.calendar-dot.approved{background:var(--accent)}
+.calendar-dot.declined{background:#ff8e8e}
+.calendar-dot.cancelled{background:#b18cff}
+.calendar-day-panel{border-top:1px solid var(--line);margin-top:20px;padding-top:20px}
+.calendar-day-panel .eyebrow{margin-bottom:7px}
+.calendar-day-panel h3{font-size:18px;margin:0 0 12px}
+.calendar-day-bookings{display:grid;gap:8px}
+.calendar-booking{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:5px 12px;align-items:center;border:1px solid #2c2c2c;border-radius:10px;background:#151515;padding:12px}
+.calendar-booking>div{display:flex;flex-direction:column;gap:4px;min-width:0}
+.calendar-booking strong{font-size:13px;overflow-wrap:anywhere}
+.calendar-booking>div span,.calendar-booking p{color:var(--muted);font-size:11px;margin:0}
+.calendar-booking p{grid-column:1/-1;overflow-wrap:anywhere}
+.calendar-booking .status-pill{grid-column:2;grid-row:1;align-self:start}
+@media(max-width:640px){.calendar-panel{padding:14px 10px}.calendar-panel-heading{flex-direction:column;gap:16px}.calendar-nav{width:100%;justify-content:space-between}.calendar-nav strong{flex:1}.calendar-weekdays,.calendar-grid{gap:3px}.calendar-cell{min-height:48px}.calendar-day{padding-top:7px;border-radius:7px}.calendar-number{font-size:11px}.calendar-dot{width:5px;height:5px}.calendar-legend{gap:9px}.calendar-legend span{font-size:9px}.calendar-booking{padding:10px;gap:8px}}
