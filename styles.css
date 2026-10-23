@@ -255,3 +255,22 @@ body{
  .calendar-day{padding-left:2px;padding-right:2px}
  .calendar-extra{font-size:8px}
 }
+
+
+/* Accessible contrast for the light theme form labels and helper text */
+.field>span,
+.field label,
+.field legend { color: #202733 !important; }
+.field small,
+.field .hint,
+.form-hint,
+.help-text { color: #4b5563 !important; }
+.field input,
+.field select,
+.field textarea { color: #171b22; }
+.field input::placeholder,
+.field textarea::placeholder { color: #626b78; opacity: 1; }
+#form-status { color: #202733; font-weight: 600; }
+.consent,
+.consent label,
+.consent span { color: #202733; }
