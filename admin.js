@@ -105,8 +105,20 @@ function renderCalendar() {
     const date = new Date(calendarMonth.getFullYear(), calendarMonth.getMonth(), day);
     const key = dateKey(date);
     const onDate = bookings.filter(item => item.status === "approved" && item.requested_date === key);
-    const statuses = onDate.map(() => "approved");
-    const dots = statuses.slice(0, 8).map(status => '<span class="calendar-dot ' + status + '" aria-hidden="true"></span>').join("") + (statuses.length > 8 ? '<span class="calendar-extra">+' + (statuses.length - 8) + '</span>' : "");
+    const serviceInfo = service => {
+      const value = String(service || "").toLowerCase();
+      if (value.includes("sport") || value.includes("baseball") || value.includes("basketball") || value.includes("football")) return {icon:"⚾", label:service || "Sports"};
+      if (value.includes("music")) return {icon:"🎵", label:service || "Music video"};
+      if (value.includes("photo")) return {icon:"📸", label:service || "Photography"};
+      if (value.includes("event")) return {icon:"🎉", label:service || "Event coverage"};
+      if (value.includes("edit")) return {icon:"✂️", label:service || "Video editing"};
+      if (value.includes("shoot")) return {icon:"🎬", label:service || "Video shoot"};
+      return {icon:"🎥", label:service || "Project"};
+    };
+    const labels = onDate.slice(0, 2).map(item => {
+      const info = serviceInfo(item.service);
+      return '<span class="calendar-event-label" title="' + escapeHtml(info.label) + '"><span aria-hidden="true">' + info.icon + '</span><span>' + escapeHtml(info.label) + '</span></span>';
+    }).join("") + (onDate.length > 2 ? '<span class="calendar-extra">+' + (onDate.length - 2) + ' more</span>' : "");
     const classes = ["calendar-cell","calendar-day",key === selectedCalendarDate ? "selected" : "",key === dateKey(today) ? "today" : ""].filter(Boolean).join(" ");
     cells.push('<button type="button" class="' + classes + '" data-calendar-date="' + key + '" aria-label="' + escapeHtml(new Intl.DateTimeFormat(undefined,{dateStyle:"full"}).format(date)) + (onDate.length ? ", " + onDate.length + " booking(s)" : "") + '"><span class="calendar-number">' + day + '</span><span class="calendar-dots">' + dots + '</span></button>');
   }
