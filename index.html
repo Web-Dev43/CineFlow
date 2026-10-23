@@ -12,22 +12,34 @@
 <body>
   <header class="site-header">
     <a class="brand" href="./" aria-label="CineFlow home"><span class="brand-mark">CF</span><span>CINEFLOW<small>BY CINEMATICLIFE.17</small></span></a>
-    <a class="header-link" href="admin.html">Client manager <span aria-hidden="true">↗</span></a>
+    <a class="header-link" href="admin.html">Studio login <span aria-hidden="true">↗</span></a>
   </header>
 
   <main class="page-shell">
-    <section class="intro">
-      <p class="eyebrow"><span class="eyebrow-dot"></span> YOUR NEXT PROJECT STARTS HERE</p>
-      <h1>Let’s make<br><span>something that moves.</span></h1>
-      <p class="intro-copy">Tell us what you have in mind. Send a booking request and Cinematiclife.17 will review the details and get back to you.</p>
-      <div class="service-tags" aria-label="Available services">
-        <span>Video shoots</span><span>Video editing</span><span>Sports highlights</span><span>Events</span><span>Music videos</span><span>Photography</span>
-      </div>
-    </section>
+    <div class="hero-layout">
+      <section class="intro">
+        <p class="eyebrow"><span class="eyebrow-dot"></span> YOUR NEXT PROJECT STARTS HERE</p>
+        <h1>Let’s make<br><span>something that moves.</span></h1>
+        <p class="intro-copy">Big idea, special moment, game-day highlight? Tell us what you’re imagining. We’ll take it from there.</p>
+        <div class="service-tags" aria-label="Available services">
+          <span>Video shoots</span><span>Video editing</span><span>Sports highlights</span><span>Events</span><span>Music videos</span><span>Photography</span>
+        </div>
+      </section>
+      <aside class="process-card" aria-label="How booking works">
+        <div class="process-card-top"><span class="process-icon" aria-hidden="true">✳</span><span class="process-kicker">THE CREATIVE PROCESS</span></div>
+        <p class="process-title">From first idea<br>to final frame.</p>
+        <ol class="process-steps">
+          <li><span>01</span><div><strong>Tell us your vision</strong><small>Share the details and your preferred date.</small></div></li>
+          <li><span>02</span><div><strong>We review your request</strong><small>We’ll check the details and availability.</small></div></li>
+          <li><span>03</span><div><strong>Make it happen</strong><small>Your booking is confirmed after approval.</small></div></li>
+        </ol>
+        <p class="process-footnote"><span aria-hidden="true">●</span> Every great project starts somewhere.</p>
+      </aside>
+    </div>
 
-    <section class="form-card">
-      <div class="form-heading"><div><p class="eyebrow">BOOKING REQUEST</p><h2>Tell us the details</h2></div><span class="step-label">01 / REQUEST</span></div>
-      <p class="form-note">Your date is a request, not a confirmed booking. All projects are reviewed before they’re approved.</p>
+    <section class="form-card" aria-labelledby="booking-title">
+      <div class="form-heading"><div><p class="eyebrow">BOOKING REQUEST</p><h2 id="booking-title">Let’s plan your project</h2></div><span class="step-label">STEP 01 <span aria-hidden="true">/</span> YOUR REQUEST</span></div>
+      <p class="form-note">Start with the basics. The more you share about your idea, the better we can understand what you need. <span class="required-note">* Required fields</span></p>
       <form id="booking-form">
         <div class="field-grid">
           <label class="field"><span>Your name <b>*</b></span><input name="client_name" autocomplete="name" required maxlength="100" placeholder="Full name"></label>
@@ -39,11 +51,11 @@
           <label class="field"><span>Budget range <small>optional</small></span><select name="budget_range"><option value="">Prefer not to say</option><option>Under $100</option><option>$100–$250</option><option>$250–$500</option><option>$500–$1,000</option><option>$1,000+</option><option>Let’s discuss</option></select></label>
           <label class="field"><span>Where did you find us? <small>optional</small></span><select name="referral_source"><option value="">Select one</option><option>Instagram</option><option>TikTok</option><option>YouTube</option><option>Referral</option><option>Website</option><option>Other</option></select></label>
         </div>
-        <label class="field message-field"><span>Project details <b>*</b></span><textarea name="project_details" required maxlength="3000" rows="5" placeholder="What are you looking to create? Include any important details, timing, or ideas."></textarea><small class="field-help">Please don’t include sensitive personal information.</small></label>
+        <label class="field message-field"><span>Tell us about the project <b>*</b></span><textarea name="project_details" required maxlength="3000" rows="5" placeholder="What are you imagining? Share the vibe, key moments, references, deadlines, or anything else that helps us understand your vision."></textarea><small class="field-help">Please don’t include sensitive personal information.</small></label>
         <label class="consent"><input type="checkbox" required><span>I understand this is a request and my booking is not confirmed until Cinematiclife.17 approves it.</span></label>
-        <button class="button button-primary submit-button" type="submit"><span>Send booking request</span><span aria-hidden="true">↗</span></button>
+        <button class="button button-primary submit-button" type="submit"><span>Submit project request</span><span aria-hidden="true">↗</span></button>
         <p id="form-status" class="status-message" role="status" aria-live="polite"></p>
-        <p class="privacy-note">Your details are used to review and respond to this request.</p>
+        <p class="privacy-note"><span aria-hidden="true">🔒</span> Your details are only used to review and respond to your request.</p>
       </form>
     </section>
     <footer class="site-footer"><span>© <span id="year"></span> CineFlow</span><span>Made for the next frame.</span></footer>
