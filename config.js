@@ -4,6 +4,6 @@
 window.CINEFLOW_CONFIG = {
   supabaseUrl: "https://unjsqhhiaogcircfxjwm.supabase.co",
   supabasePublishableKey: "sb_publishable_tn4XahzTg2W15T_7VHVylA_HYgqwiGu",
-  // Paste only the VAPID PUBLIC key here; never add the private key to this file.
-  vapidPublicKey: "PASTE_VAPID_PUBLIC_KEY_HERE"
+  // Public VAPID key for browser push subscriptions.
+  vapidPublicKey: "BEJbvCnTD55YTKKqLSkTxfrYIvHyOd2C7_7UgOMm3SHeQj_OZLQ0igOAi48V-f9FJbMrDe2CNafjm2WN3eWijaA"
 };
