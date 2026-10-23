@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#090909">
+  <title>Booking Manager | CineFlow</title>
+  <meta name="robots" content="noindex,nofollow">
+  <link rel="stylesheet" href="styles.css">
+  <script src="config.js"></script>
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="./"><span class="brand-mark">CF</span><span>CINEFLOW<small>BOOKING MANAGER</small></span></a>
+    <a class="header-link" href="./">View booking page <span aria-hidden="true">↗</span></a>
+  </header>
+  <main class="admin-shell">
+    <section id="login-section">
+      <div class="admin-top"><div><p class="eyebrow">PRIVATE WORKSPACE</p><h1>Welcome back.</h1><p>Sign in to review and manage booking requests.</p></div></div>
+      <form id="login-form" class="auth-card">
+        <h2>Admin sign in</h2><p>Use the CineFlow admin account created in Supabase Auth.</p>
+        <label class="field"><span>Email address</span><input name="email" type="email" autocomplete="username" required maxlength="254" placeholder="Admin email"></label>
+        <label class="field"><span>Password</span><input name="password" type="password" autocomplete="current-password" required placeholder="Password"></label>
+        <button class="button button-primary" type="submit"><span>Sign in</span><span aria-hidden="true">↗</span></button>
+        <p id="login-message" class="admin-message" role="status" aria-live="polite"></p>
+      </form>
+    </section>
+    <section id="dashboard-section" hidden>
+      <div class="admin-top"><div><p class="eyebrow">CINEFLOW / REQUESTS</p><h1>Bookings</h1><p id="signed-in-label">Signed in</p></div><button id="sign-out" class="ghost-button" type="button">Sign out</button></div>
+      <div class="dashboard-toolbar"><div id="filters" class="filter-row" aria-label="Filter bookings"><button class="filter-button active" data-filter="all">All requests</button><button class="filter-button" data-filter="pending">Pending</button><button class="filter-button" data-filter="approved">Approved</button><button class="filter-button" data-filter="declined">Declined</button></div><button id="refresh-bookings" class="ghost-button" type="button">↻ Refresh</button></div>
+      <p id="dashboard-message" class="admin-message" role="status" aria-live="polite"></p>
+      <div id="booking-list" class="booking-list"><div class="empty-state">Loading booking requests…</div></div>
+    </section>
+  </main>
+  <script type="module" src="admin.js"></script>
+</body>
+</html>
