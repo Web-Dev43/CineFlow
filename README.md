@@ -2,37 +2,36 @@
 
 Booking requests for Cinematiclife.17. Built as a lightweight static website that can be hosted on GitHub Pages.
 
-## Included in this first slice
+## Included
 
 - Client booking request form for video shoots, editing, sports highlights, events, music videos, photography, and other projects
 - Requests stay **pending** until the owner approves them
 - Private admin login and dashboard for viewing and updating requests
 - Responsive layout for iPhone and desktop
-- Supabase Row Level Security policies in `supabase/schema.sql`
+- Supabase database tables and Row Level Security policies
 
-## Setup required before accepting real bookings
+## Supabase connection status
 
-The GitHub repository currently contains the front end and database schema. It is **not live-connected to Supabase yet**. Do not advertise the form as ready until these steps are complete.
+The dedicated CineFlow Supabase project is connected in `config.js`, and the initial schema has been applied. The CodeKit Supabase project is separate and must not be modified for CineFlow.
 
-1. Use a dedicated CineFlow Supabase project. Do not reuse the CodeKit project.
-2. In that project's SQL Editor, run the contents of `supabase/schema.sql`.
-3. In Supabase Authentication, create the owner's admin account using email and password. Keep public sign-ups disabled if the project is dedicated to CineFlow.
-4. Copy the user's UUID from Authentication and add it to the admin allowlist by running:
+### Still required before accepting real bookings
+
+1. In Supabase Authentication, create the owner's admin account using an email and password. Do not share the password in chat.
+2. Copy that user's UUID from Authentication and add it to the admin allowlist in the CineFlow SQL Editor:
    ```sql
    insert into public.admin_users (user_id)
    values ('PASTE-ADMIN-USER-UUID-HERE');
    ```
-5. In Supabase project settings, copy the Project URL and publishable key. Put them in `config.js` as `supabaseUrl` and `supabasePublishableKey`. A publishable/anon key is safe for browser use when RLS is correctly configured. **Never put a service-role or secret key in this repository.**
-6. Enable GitHub Pages for the repository, using the `main` branch and root folder.
-7. Test a public booking request, then sign in at `admin.html` with the owner's account and confirm the request appears. Verify an unapproved account cannot read or change bookings.
+3. Enable GitHub Pages for this repository using the `main` branch and root folder, if it is not already enabled.
+4. Test a public booking request, then sign in at `admin.html` and confirm the request appears. Verify a non-admin account cannot read or change bookings.
 
-## Status
+## Not implemented yet
 
-This is the first booking-focused slice. Email notifications and iPhone web push are not implemented yet; add them after the database connection and approval flow are tested. A client request is not a confirmed booking until the owner approves it.
+Email notifications and iPhone web push are not implemented. Add these after the booking submission and admin approval flow have been tested. A client request is not a confirmed booking until the owner approves it.
 
 ## Security notes
 
 - Public visitors can only insert a new request with status `pending`.
 - Only user IDs explicitly added to `admin_users` can read and update requests.
-- No service-role key belongs in browser code.
+- The project URL and publishable key in `config.js` are intended for browser use. Never put a service-role key or secret key in this repository.
 - The date-conflict check in the dashboard is a helpful warning, not a guarantee against simultaneous approvals. Check the calendar before approving a booking.
