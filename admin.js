@@ -39,6 +39,14 @@ function niceDate(value) {
   const date = new Date(value + "T12:00:00");
   return Number.isNaN(date.getTime()) ? value : new Intl.DateTimeFormat(undefined, {dateStyle:"medium"}).format(date);
 }
+function niceTime(value) {
+  if (!value) return "Time not specified";
+  const match = String(value).match(/^(\\d{2}):(\\d{2})/);
+  if (!match) return value;
+  const date = new Date();
+  date.setHours(Number(match[1]), Number(match[2]), 0, 0);
+  return new Intl.DateTimeFormat(undefined, {hour:"numeric", minute:"2-digit"}).format(date);
+}
 function showSignedIn(user) {
   loginSection.hidden = Boolean(user);
   dashboardSection.hidden = !user;
@@ -72,7 +80,9 @@ function renderBookings() {
   bookingList.innerHTML = visible.map(item => {
     const status = ["pending","approved","declined","cancelled"].includes(item.status) ? item.status : "pending";
     const details = [
+      "Event / project: " + (item.event_name || "Unnamed project"),
       "Preferred date: " + niceDate(item.requested_date),
+      "Start time: " + niceTime(item.requested_time),
       "Location: " + (item.location || "Not provided"),
       "Budget: " + (item.budget_range || "Not provided"),
       "Phone: " + (item.client_phone || "Not provided"),
@@ -105,19 +115,9 @@ function renderCalendar() {
     const date = new Date(calendarMonth.getFullYear(), calendarMonth.getMonth(), day);
     const key = dateKey(date);
     const onDate = bookings.filter(item => item.status === "approved" && item.requested_date === key);
-    const serviceInfo = service => {
-      const value = String(service || "").toLowerCase();
-      if (value.includes("sport") || value.includes("baseball") || value.includes("basketball") || value.includes("football")) return {icon:"⚾", label:service || "Sports"};
-      if (value.includes("music")) return {icon:"🎵", label:service || "Music video"};
-      if (value.includes("photo")) return {icon:"📸", label:service || "Photography"};
-      if (value.includes("event")) return {icon:"🎉", label:service || "Event coverage"};
-      if (value.includes("edit")) return {icon:"✂️", label:service || "Video editing"};
-      if (value.includes("shoot")) return {icon:"🎬", label:service || "Video shoot"};
-      return {icon:"🎥", label:service || "Project"};
-    };
     const labels = onDate.slice(0, 2).map(item => {
-      const info = serviceInfo(item.service);
-      return '<span class="calendar-event-label" title="' + escapeHtml(info.label) + '"><span aria-hidden="true">' + info.icon + '</span><span>' + escapeHtml(info.label) + '</span></span>';
+      const label = (item.event_name || item.service || "Project") + (item.requested_time ? " · " + niceTime(item.requested_time) : "");
+      return '<span class="calendar-event-label" title="' + escapeHtml(label) + '"><span aria-hidden="true">🎬</span><span>' + escapeHtml(label) + '</span></span>';
     }).join("") + (onDate.length > 2 ? '<span class="calendar-extra">+' + (onDate.length - 2) + ' more</span>' : "");
     const classes = ["calendar-cell","calendar-day",key === selectedCalendarDate ? "selected" : "",key === dateKey(today) ? "today" : ""].filter(Boolean).join(" ");
     cells.push('<button type="button" class="' + classes + '" data-calendar-date="' + key + '" aria-label="' + escapeHtml(new Intl.DateTimeFormat(undefined,{dateStyle:"full"}).format(date)) + (onDate.length ? ", " + onDate.length + " booking(s)" : "") + '"><span class="calendar-number">' + day + '</span><span class="calendar-events">' + labels + '</span></button>');
@@ -136,7 +136,7 @@ function renderCalendarDay() {
   }
   calendarDayBookings.innerHTML = dayBookings.map(item => {
     const status = ["pending","approved","declined","cancelled"].includes(item.status) ? item.status : "pending";
-    return '<article class="calendar-booking"><div><strong>' + escapeHtml(item.client_name) + '</strong><span>' + escapeHtml(item.service) + '</span></div><span class="status-pill ' + status + '">' + escapeHtml(status) + '</span><p>' + escapeHtml(item.client_email) + '</p>' + (status === "declined" && item.decline_reason ? '<p class="decline-reason"><strong>Decline reason:</strong> ' + escapeHtml(item.decline_reason) + '</p>' : '') + '</article>';
+    return '<article class="calendar-booking"><div><strong>' + escapeHtml(item.event_name || item.service || "Project") + '</strong><span>' + escapeHtml(item.service) + ' · ' + escapeHtml(niceTime(item.requested_time)) + '</span></div><span class="status-pill ' + status + '">' + escapeHtml(status) + '</span><p>' + escapeHtml(item.client_name) + ' · ' + escapeHtml(item.client_email) + '</p><p>Where: ' + escapeHtml(item.location || "Not provided") + '</p>' + (status === "declined" && item.decline_reason ? '<p class="decline-reason"><strong>Decline reason:</strong> ' + escapeHtml(item.decline_reason) + '</p>' : '') + '</article>';
   }).join("");
 }
 document.querySelector("#calendar-previous").addEventListener("click", () => {
