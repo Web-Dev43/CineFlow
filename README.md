@@ -6,6 +6,7 @@ Booking requests for Cinematiclife.17. Built as a lightweight static website tha
 
 - Client booking request form for video shoots, editing, sports highlights, events, music videos, photography, and other projects
 - Requests stay **pending** until the owner approves them
+- Declining a request requires a reason, which is saved and shown in the admin dashboard
 - Private admin login and dashboard with separate Pending, Approved, Declined, and Cancelled tabs
 - Five-year-forward month-by-month booking calendar with status markers and a selectable daily booking list
 - Responsive layout for iPhone and desktop
@@ -28,7 +29,7 @@ The dedicated CineFlow Supabase project is connected in `config.js`, and the ini
 
 ## Not implemented yet
 
-Email notifications and iPhone web push are not implemented. Add these after the booking submission and admin approval flow have been tested. A client request is not a confirmed booking until the owner approves it.
+Email notifications and iPhone web push are not implemented. Decline reasons are saved in the booking record and shown in the admin dashboard; client delivery of that reason will need status notifications or a client-facing booking status page. A client request is not a confirmed booking until the owner approves it.
 
 ## Security notes
 
