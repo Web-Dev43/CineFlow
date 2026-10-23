@@ -1,7 +1,7 @@
 // CineFlow public browser configuration.
-// Replace these two placeholders with the URL and publishable key from the CineFlow Supabase project.
-// A publishable/anon key is intended for browser use; NEVER put a service_role or secret key here.
+// This file contains only the project URL and a publishable key intended for browser use.
+// NEVER put a service_role or secret key here.
 window.CINEFLOW_CONFIG = {
-  supabaseUrl: "https://YOUR_PROJECT_REF.supabase.co",
-  supabasePublishableKey: "YOUR_SUPABASE_PUBLISHABLE_KEY"
+  supabaseUrl: "https://unjsqhhiaogcircfxjwm.supabase.co",
+  supabasePublishableKey: "sb_publishable_tn4XahzTg2W15T_7VHVylA_HYgqwiGu"
 };
