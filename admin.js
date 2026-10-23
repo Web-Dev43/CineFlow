@@ -104,8 +104,8 @@ function renderCalendar() {
     const date = new Date(calendarMonth.getFullYear(), calendarMonth.getMonth(), day);
     const key = dateKey(date);
     const onDate = bookings.filter(item => item.requested_date === key);
-    const statuses = [...new Set(onDate.map(item => ["pending","approved","declined","cancelled"].includes(item.status) ? item.status : "pending"))];
-    const dots = statuses.map(status => '<span class="calendar-dot ' + status + '"></span>').join("");
+    const statuses = onDate.map(item => ["pending","approved","declined","cancelled"].includes(item.status) ? item.status : "pending");
+    const dots = statuses.slice(0, 8).map(status => '<span class="calendar-dot ' + status + '" aria-hidden="true"></span>').join("") + (statuses.length > 8 ? '<span class="calendar-extra">+' + (statuses.length - 8) + '</span>' : "");
     const classes = ["calendar-cell","calendar-day",key === selectedCalendarDate ? "selected" : "",key === dateKey(today) ? "today" : ""].filter(Boolean).join(" ");
     cells.push('<button type="button" class="' + classes + '" data-calendar-date="' + key + '" aria-label="' + escapeHtml(new Intl.DateTimeFormat(undefined,{dateStyle:"full"}).format(date)) + (onDate.length ? ", " + onDate.length + " booking(s)" : "") + '"><span class="calendar-number">' + day + '</span><span class="calendar-dots">' + dots + '</span></button>');
   }
@@ -128,11 +128,11 @@ function renderCalendarDay() {
 }
 document.querySelector("#calendar-previous").addEventListener("click", () => {
   const target = new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() - 1, 1);
-  if (target >= calendarStart) { calendarMonth = target; renderCalendar(); }
+  if (target >= calendarStart) { calendarMonth = target; selectedCalendarDate = dateKey(target); renderCalendar(); }
 });
 document.querySelector("#calendar-next").addEventListener("click", () => {
   const target = new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() + 1, 1);
-  if (target <= calendarEnd) { calendarMonth = target; renderCalendar(); }
+  if (target <= calendarEnd) { calendarMonth = target; selectedCalendarDate = dateKey(target); renderCalendar(); }
 });
 calendarGrid.addEventListener("click", event => {
   const button = event.target.closest("[data-calendar-date]");
@@ -170,7 +170,7 @@ document.querySelector("#filters").addEventListener("click", event => {
   const button = event.target.closest("[data-filter]");
   if (!button) return;
   currentFilter = button.dataset.filter;
-  document.querySelectorAll("[data-filter]").forEach(item => item.classList.toggle("active", item === button));
+  document.querySelectorAll("[data-filter]").forEach(item => { item.classList.toggle("active", item === button); item.setAttribute("aria-pressed", String(item === button)); });
   renderBookings();
 });
 bookingList.addEventListener("click", async event => {
