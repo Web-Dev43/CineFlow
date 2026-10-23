@@ -29,6 +29,7 @@ form.addEventListener("submit", async (event) => {
     client_email: data.client_email.trim().toLowerCase(),
     client_phone: data.client_phone.trim() || null,
     service: data.service,
+    event_name: data.event_name.trim(),
     requested_date: data.requested_date,
     location: data.location.trim() || null,
     budget_range: data.budget_range || null,
