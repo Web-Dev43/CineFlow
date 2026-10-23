@@ -120,7 +120,7 @@ function renderCalendar() {
       return '<span class="calendar-event-label" title="' + escapeHtml(info.label) + '"><span aria-hidden="true">' + info.icon + '</span><span>' + escapeHtml(info.label) + '</span></span>';
     }).join("") + (onDate.length > 2 ? '<span class="calendar-extra">+' + (onDate.length - 2) + ' more</span>' : "");
     const classes = ["calendar-cell","calendar-day",key === selectedCalendarDate ? "selected" : "",key === dateKey(today) ? "today" : ""].filter(Boolean).join(" ");
-    cells.push('<button type="button" class="' + classes + '" data-calendar-date="' + key + '" aria-label="' + escapeHtml(new Intl.DateTimeFormat(undefined,{dateStyle:"full"}).format(date)) + (onDate.length ? ", " + onDate.length + " booking(s)" : "") + '"><span class="calendar-number">' + day + '</span><span class="calendar-dots">' + dots + '</span></button>');
+    cells.push('<button type="button" class="' + classes + '" data-calendar-date="' + key + '" aria-label="' + escapeHtml(new Intl.DateTimeFormat(undefined,{dateStyle:"full"}).format(date)) + (onDate.length ? ", " + onDate.length + " booking(s)" : "") + '"><span class="calendar-number">' + day + '</span><span class="calendar-events">' + labels + '</span></button>');
   }
   calendarGrid.innerHTML = cells.join("");
   renderCalendarDay();
