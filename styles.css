@@ -242,3 +242,16 @@ body{
 .calendar-booking{border-color:#d8d5cc;background:#fffdf8}
 .calendar-day-panel{border-top-color:#d8d5cc}
 @media(prefers-reduced-motion:reduce){.header-link,.button{transition:none}}
+
+
+/* Calendar entries identify the approved project type, not just a dot */
+.calendar-day{align-items:stretch;min-width:0;gap:6px}
+.calendar-events{display:flex;flex-direction:column;gap:3px;width:100%;min-width:0}
+.calendar-event-label{display:flex;align-items:center;justify-content:flex-start;gap:3px;min-width:0;padding:3px 4px;border-radius:5px;background:#3478c71a;color:#245f9e;font-size:9px;font-weight:700;line-height:1.2;text-align:left}
+.calendar-event-label>span:last-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.calendar-extra{font-size:9px;color:#68717d;text-align:left;padding-left:3px}
+@media(max-width:640px){
+ .calendar-event-label{font-size:8px;padding:3px 2px;gap:2px}
+ .calendar-day{padding-left:2px;padding-right:2px}
+ .calendar-extra{font-size:8px}
+}
