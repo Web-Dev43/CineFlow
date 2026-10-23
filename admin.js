@@ -104,8 +104,8 @@ function renderCalendar() {
   for (let day = 1; day <= daysInMonth; day++) {
     const date = new Date(calendarMonth.getFullYear(), calendarMonth.getMonth(), day);
     const key = dateKey(date);
-    const onDate = bookings.filter(item => item.requested_date === key);
-    const statuses = onDate.map(item => ["pending","approved","declined","cancelled"].includes(item.status) ? item.status : "pending");
+    const onDate = bookings.filter(item => item.status === "approved" && item.requested_date === key);
+    const statuses = onDate.map(() => "approved");
     const dots = statuses.slice(0, 8).map(status => '<span class="calendar-dot ' + status + '" aria-hidden="true"></span>').join("") + (statuses.length > 8 ? '<span class="calendar-extra">+' + (statuses.length - 8) + '</span>' : "");
     const classes = ["calendar-cell","calendar-day",key === selectedCalendarDate ? "selected" : "",key === dateKey(today) ? "today" : ""].filter(Boolean).join(" ");
     cells.push('<button type="button" class="' + classes + '" data-calendar-date="' + key + '" aria-label="' + escapeHtml(new Intl.DateTimeFormat(undefined,{dateStyle:"full"}).format(date)) + (onDate.length ? ", " + onDate.length + " booking(s)" : "") + '"><span class="calendar-number">' + day + '</span><span class="calendar-dots">' + dots + '</span></button>');
@@ -116,7 +116,7 @@ function renderCalendar() {
 function renderCalendarDay() {
   const date = new Date(selectedCalendarDate + "T12:00:00");
   calendarSelectedLabel.textContent = new Intl.DateTimeFormat(undefined,{dateStyle:"full"}).format(date);
-  const dayBookings = bookings.filter(item => item.requested_date === selectedCalendarDate)
+  const dayBookings = bookings.filter(item => item.status === "approved" && item.requested_date === selectedCalendarDate)
     .sort((a,b) => (a.created_at || "").localeCompare(b.created_at || ""));
   if (!dayBookings.length) {
     calendarDayBookings.innerHTML = '<div class="empty-state">No bookings for this date.</div>';
