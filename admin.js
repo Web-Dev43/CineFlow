@@ -31,6 +31,53 @@ function showMessage(element, message, error = false) {
   element.textContent = message;
   element.style.color = error ? "var(--danger)" : "var(--muted)";
 }
+function pushMessage(message, error = false) {
+  const node = document.querySelector("#push-message");
+  if (node) {
+    node.textContent = message;
+    node.style.color = error ? "var(--danger)" : "var(--muted)";
+  }
+}
+const pushUrl = config.supabaseUrl ? config.supabaseUrl + "/functions/v1/cineflow-push" : "";
+function decodePublicKey(value) {
+  const padded = value.replace(/-/g, "+").replace(/_/g, "/") + "=".repeat((4 - value.length % 4) % 4);
+  return Uint8Array.from(atob(padded), char => char.charCodeAt(0));
+}
+async function callPush(payload, needsAdmin = false) {
+  const headers = { "Content-Type": "application/json", "apikey": config.supabasePublishableKey };
+  if (needsAdmin) {
+    const { data } = await supabase.auth.getSession();
+    const token = data.session?.access_token;
+    if (!token) throw new Error("Please sign in again.");
+    headers.Authorization = "Bearer " + token;
+  }
+  const response = await fetch(pushUrl, { method: "POST", headers, body: JSON.stringify(payload) });
+  const result = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(result.error || "Push notification request failed.");
+  return result;
+}
+async function enableAdminPush() {
+  if (!supabase) throw new Error("Supabase is not configured.");
+  if (!("serviceWorker" in navigator) || !("PushManager" in window) || !("Notification" in window)) {
+    throw new Error("Push notifications aren't supported in this browser.");
+  }
+  if (!window.isSecureContext) throw new Error("Notifications require a secure HTTPS connection.");
+  if (!config.vapidPublicKey || config.vapidPublicKey.includes("PASTE_VAPID")) {
+    throw new Error("Add the VAPID public key to config.js first.");
+  }
+  const permission = await Notification.requestPermission();
+  if (permission !== "granted") throw new Error("Notifications are blocked. Enable them in browser settings.");
+  const registration = await navigator.serviceWorker.ready;
+  let subscription = await registration.pushManager.getSubscription();
+  if (!subscription) {
+    subscription = await registration.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: decodePublicKey(config.vapidPublicKey)
+    });
+  }
+  await callPush({ action: "subscribe-admin", subscription: subscription.toJSON() }, true);
+  return "Booking alerts are enabled on this device.";
+}
 function escapeHtml(value = "") {
   return String(value).replace(/[&<>"']/g, char => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[char]));
 }
@@ -179,6 +226,20 @@ document.querySelector("#sign-out").addEventListener("click", async () => {
   showSignedIn(null);
 });
 document.querySelector("#refresh-bookings").addEventListener("click", loadBookings);
+const enablePushButton = document.querySelector("#enable-push");
+if (enablePushButton) {
+  enablePushButton.addEventListener("click", async () => {
+    enablePushButton.disabled = true;
+    pushMessage("Enabling notifications…");
+    try {
+      pushMessage(await enableAdminPush());
+    } catch (error) {
+      pushMessage(error.message || "Could not enable notifications.", true);
+    } finally {
+      enablePushButton.disabled = false;
+    }
+  });
+}
 document.querySelector("#filters").addEventListener("click", event => {
   const button = event.target.closest("[data-filter]");
   if (!button) return;
@@ -211,6 +272,11 @@ bookingList.addEventListener("click", async event => {
     const update = {status, decline_reason: status === "declined" ? declineReason : null};
     const {error} = await supabase.from("bookings").update(update).eq("id", id);
     if (error) throw error;
+    try {
+      await callPush({ action: "booking-status", bookingId: id }, true);
+    } catch (pushError) {
+      console.warn("CineFlow client status notification failed:", pushError);
+    }
     showMessage(dashboardMessage, status === "declined" ? "Booking declined and the reason was saved." : "Booking updated and moved to the " + status + " tab.");
     await loadBookings();
   } catch (error) {
