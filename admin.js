@@ -41,7 +41,7 @@ function niceDate(value) {
 }
 function niceTime(value) {
   if (!value) return "Time not specified";
-  const match = String(value).match(/^(\\d{2}):(\\d{2})/);
+  const match = String(value).match(/^(\d{2}):(\d{2})/);
   if (!match) return value;
   const date = new Date();
   date.setHours(Number(match[1]), Number(match[2]), 0, 0);
