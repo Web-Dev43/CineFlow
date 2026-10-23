@@ -26,8 +26,17 @@
       </form>
     </section>
     <section id="dashboard-section" hidden>
-      <div class="admin-top"><div><p class="eyebrow">CINEFLOW / REQUESTS</p><h1>Bookings</h1><p id="signed-in-label">Signed in</p></div><button id="sign-out" class="ghost-button" type="button">Sign out</button></div>
-      <div class="dashboard-toolbar"><div id="filters" class="filter-row" aria-label="Filter bookings"><button class="filter-button active" data-filter="all">All requests</button><button class="filter-button" data-filter="pending">Pending</button><button class="filter-button" data-filter="approved">Approved</button><button class="filter-button" data-filter="declined">Declined</button></div><button id="refresh-bookings" class="ghost-button" type="button">↻ Refresh</button></div>
+      <div class="admin-top"><div><p class="eyebrow">CINEFLOW / WORKSPACE</p><h1>Bookings</h1><p id="signed-in-label">Signed in</p></div><button id="sign-out" class="ghost-button" type="button">Sign out</button></div>
+
+      <section class="calendar-panel" aria-labelledby="calendar-title">
+        <div class="calendar-panel-heading"><div><p class="eyebrow">SCHEDULE</p><h2 id="calendar-title">Booking calendar</h2><p class="calendar-subtitle">Browse this month through five years ahead. Dots show booking statuses.</p></div><div class="calendar-nav"><button id="calendar-previous" class="ghost-button" type="button" aria-label="Previous month">←</button><strong id="calendar-heading"></strong><button id="calendar-next" class="ghost-button" type="button" aria-label="Next month">→</button></div></div>
+        <div class="calendar-legend"><span><i class="calendar-dot pending"></i> Pending</span><span><i class="calendar-dot approved"></i> Approved</span><span><i class="calendar-dot declined"></i> Declined</span><span><i class="calendar-dot cancelled"></i> Cancelled</span></div>
+        <div class="calendar-weekdays" aria-hidden="true"><span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span></div>
+        <div id="calendar-grid" class="calendar-grid" aria-label="Monthly booking calendar"></div>
+        <div class="calendar-day-panel"><p class="eyebrow">SELECTED DATE</p><h3 id="calendar-selected-label"></h3><div id="calendar-day-bookings" class="calendar-day-bookings"></div></div>
+      </section>
+
+      <div class="dashboard-toolbar"><div id="filters" class="filter-row" aria-label="Booking status tabs"><button class="filter-button active" data-filter="pending" aria-pressed="true">Pending</button><button class="filter-button" data-filter="approved" aria-pressed="false">Approved</button><button class="filter-button" data-filter="declined" aria-pressed="false">Declined</button><button class="filter-button" data-filter="cancelled" aria-pressed="false">Cancelled</button></div><button id="refresh-bookings" class="ghost-button" type="button">↻ Refresh</button></div>
       <p id="dashboard-message" class="admin-message" role="status" aria-live="polite"></p>
       <div id="booking-list" class="booking-list"><div class="empty-state">Loading booking requests…</div></div>
     </section>
