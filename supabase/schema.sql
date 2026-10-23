@@ -30,6 +30,12 @@ create index if not exists bookings_status_idx on public.bookings (status);
 alter table public.admin_users enable row level security;
 alter table public.bookings enable row level security;
 
+-- Explicit grants make the intended Data API access clear. RLS still restricts rows.
+grant usage on schema public to anon, authenticated;
+grant insert on public.bookings to anon, authenticated;
+grant select, update on public.bookings to authenticated;
+grant select on public.admin_users to authenticated;
+
 drop policy if exists "Admins can read their own admin record" on public.admin_users;
 create policy "Admins can read their own admin record"
   on public.admin_users for select
@@ -70,5 +76,5 @@ create policy "CineFlow admins can update bookings"
     )
   );
 
--- No public SELECT, UPDATE, or DELETE policy is granted for bookings.
+-- No public SELECT, UPDATE, or DELETE policy exists for bookings.
 -- Email and push notification delivery will be added after the booking flow is connected and tested.
