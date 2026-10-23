@@ -6,7 +6,8 @@ Booking requests for Cinematiclife.17. Built as a lightweight static website tha
 
 - Client booking request form for video shoots, editing, sports highlights, events, music videos, photography, and other projects
 - Requests stay **pending** until the owner approves them
-- Private admin login and dashboard for viewing and updating requests
+- Private admin login and dashboard with separate Pending, Approved, Declined, and Cancelled tabs
+- Five-year-forward month-by-month booking calendar with status markers and a selectable daily booking list
 - Responsive layout for iPhone and desktop
 - Supabase database tables and Row Level Security policies
 
