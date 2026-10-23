@@ -1,0 +1,20 @@
+{
+  "id": "./",
+  "name": "CineFlow — Cinematiclife.17",
+  "short_name": "CineFlow",
+  "description": "Book a video, editing, event, sports highlight, music video, or photography project with Cinematiclife.17.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#090909",
+  "theme_color": "#090909",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
