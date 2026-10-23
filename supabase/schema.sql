@@ -19,6 +19,7 @@ create table if not exists public.bookings (
   referral_source text,
   project_details text not null check (char_length(trim(project_details)) between 1 and 3000),
   status text not null default 'pending' check (status in ('pending','approved','declined','cancelled')),
+  decline_reason text,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
