@@ -29,7 +29,23 @@ function showErrorOverlay(title, details) {
   detailBox.textContent = String(details || "No additional details were provided.").slice(0, 6000);
   overlay.hidden = false;
 }
-window.CINEFLOW_SHOW_ERROR = showErrorOverlay;
+window.addEventListener("error", (event) => {
+  const target = event.target;
+  if (target && target !== window && (target.src || target.href)) {
+    showErrorOverlay("A resource failed to load", (target.tagName || "Resource") + ": " + (target.src || target.href));
+    return;
+  }
+  showErrorOverlay("A JavaScript error occurred", [
+    event.message || "Unknown JavaScript error",
+    event.filename ? "File: " + event.filename : "",
+    event.lineno ? "Line: " + event.lineno + (event.colno ? ", column: " + event.colno : "") : "",
+    event.error && event.error.stack ? event.error.stack : ""
+  ].filter(Boolean).join("\n"));
+}, true);
+window.addEventListener("unhandledrejection", (event) => {
+  const reason = event.reason;
+  showErrorOverlay("An async operation failed", reason && (reason.stack || reason.message) ? (reason.stack || reason.message) : String(reason || "Unknown promise rejection"));
+});
 document.querySelector("#error-overlay-close")?.addEventListener("click", () => {
   document.querySelector("#error-overlay").hidden = true;
 });
