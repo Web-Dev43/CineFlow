@@ -21,7 +21,7 @@ function showErrorOverlay(title, details) {
   const summary = document.querySelector("#error-overlay-summary");
   const detailBox = document.querySelector("#error-overlay-details");
   const readableDetails = details instanceof Error
-    ? [details.message || "Unknown error", details.stack && details.stack !== details.message ? "\\n\\nTechnical trace:\\n" + details.stack : ""].filter(Boolean).join("")
+    ? [details.message || "Unknown error", details.stack && details.stack !== details.message ? "\n\nTechnical trace:\n" + details.stack : ""].filter(Boolean).join("")
     : String(details || "No additional details were provided.");
   if (!overlay || !heading || !summary || !detailBox) {
     setStatus((title ? title + ": " : "") + readableDetails, true);
@@ -153,9 +153,9 @@ form.addEventListener("submit", async (event) => {
     if (!response.ok) {
       console.error("CineFlow booking submission failed:", response.status, result || responseText);
       const reason = result && typeof result === "object"
-        ? [result.message, result.error, result.details, result.hint, result.code ? "Error code: " + result.code : ""].filter(Boolean).join("\\n")
+        ? [result.message, result.error, result.details, result.hint, result.code ? "Error code: " + result.code : ""].filter(Boolean).join("\n")
         : String(responseText || "").trim();
-      throw new Error("Supabase returned HTTP " + response.status + (reason ? ":\\n" + reason : ". No error message was returned."));
+      throw new Error("Supabase returned HTTP " + response.status + (reason ? ":\n" + reason : ". No error message was returned."));
     }
     const booking = Array.isArray(result) ? result[0] : null;
     if (!booking?.id) throw new Error("The request response was unexpected. Please contact Cinematiclife.17 before submitting again.");
