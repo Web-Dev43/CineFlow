@@ -20,13 +20,16 @@ function showErrorOverlay(title, details) {
   const heading = document.querySelector("#error-overlay-title");
   const summary = document.querySelector("#error-overlay-summary");
   const detailBox = document.querySelector("#error-overlay-details");
+  const readableDetails = details instanceof Error
+    ? [details.message || "Unknown error", details.stack && details.stack !== details.message ? "\\n\\nTechnical trace:\\n" + details.stack : ""].filter(Boolean).join("")
+    : String(details || "No additional details were provided.");
   if (!overlay || !heading || !summary || !detailBox) {
-    setStatus((title ? title + ": " : "") + String(details || "Unknown error"), true);
+    setStatus((title ? title + ": " : "") + readableDetails, true);
     return;
   }
   heading.textContent = title || "Something went wrong";
-  summary.textContent = "CineFlow caught a problem. Copy the details below and send them to us so we can diagnose it.";
-  detailBox.textContent = String(details || "No additional details were provided.").slice(0, 6000);
+  summary.textContent = "CineFlow caught a problem. The message below explains what failed; technical details follow when available.";
+  detailBox.textContent = readableDetails.slice(0, 6000);
   overlay.hidden = false;
 }
 window.addEventListener("error", (event) => {
@@ -144,10 +147,15 @@ form.addEventListener("submit", async (event) => {
       },
       body: JSON.stringify(payload)
     });
-    const result = await response.json().catch(() => null);
+    const responseText = await response.text();
+    let result = null;
+    try { result = responseText ? JSON.parse(responseText) : null; } catch {}
     if (!response.ok) {
-      console.error("CineFlow booking submission failed:", response.status, result);
-      throw new Error(result?.message || result?.hint || "The booking service rejected the request (HTTP " + response.status + ").");
+      console.error("CineFlow booking submission failed:", response.status, result || responseText);
+      const reason = result && typeof result === "object"
+        ? [result.message, result.error, result.details, result.hint, result.code ? "Error code: " + result.code : ""].filter(Boolean).join("\\n")
+        : String(responseText || "").trim();
+      throw new Error("Supabase returned HTTP " + response.status + (reason ? ":\\n" + reason : ". No error message was returned."));
     }
     const booking = Array.isArray(result) ? result[0] : null;
     if (!booking?.id) throw new Error("The request response was unexpected. Please contact Cinematiclife.17 before submitting again.");
@@ -168,7 +176,7 @@ form.addEventListener("submit", async (event) => {
     }).catch(error => console.warn("CineFlow admin push trigger failed:", error));
   } catch (error) {
     console.error("CineFlow booking submission failed:", error);
-    showErrorOverlay("Booking request failed", error && (error.stack || error.message) ? (error.stack || error.message) : String(error || "Unknown submission error"));
+    showErrorOverlay("Booking request failed", error instanceof Error ? error : String(error || "Unknown submission error"));
   } finally {
     submitButton.disabled = false;
     submitButton.querySelector("span").textContent = "Submit project request";
