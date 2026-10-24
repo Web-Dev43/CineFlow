@@ -12,7 +12,7 @@
   <link rel="apple-touch-icon" href="./icon.svg">
   <title>Book a Project | CineFlow</title>
   <meta name="description" content="Request a video shoot, editing project, event coverage, sports highlight, music video, or photography session with Cinematiclife.17.">
-  <link rel="stylesheet" href="styles.css?v=3">
+  <link rel="stylesheet" href="styles.css?v=4">
   <script src="config.js"></script>
 </head>
 <body>
@@ -68,6 +68,21 @@
     </section>
     <footer class="site-footer"><span>© <span id="year"></span> CineFlow</span><span>Made for the next frame.</span></footer>
   </main>
-  <script type="module" src="app.js?v=4"></script>
+
+  <section id="error-overlay" class="error-overlay" role="alertdialog" aria-modal="true" aria-labelledby="error-overlay-title" aria-describedby="error-overlay-summary" hidden>
+    <div class="error-overlay-card">
+      <div class="error-overlay-mark" aria-hidden="true">!</div>
+      <p class="error-overlay-eyebrow">CINEFLOW DIAGNOSTICS</p>
+      <h2 id="error-overlay-title">Something went wrong</h2>
+      <p id="error-overlay-summary">CineFlow caught an unexpected error. The details below can help us find the cause.</p>
+      <pre id="error-overlay-details" class="error-overlay-details">Waiting for error details…</pre>
+      <div class="error-overlay-actions">
+        <button id="error-overlay-copy" class="button button-primary" type="button">Copy error details</button>
+        <button id="error-overlay-close" class="ghost-button" type="button">Close overlay</button>
+      </div>
+      <p class="error-overlay-note">If you were submitting a booking, check the dashboard before trying again to avoid duplicate requests.</p>
+    </div>
+  </section>
+\n  <script type="module" src="app.js?v=5"></script>
 </body>
 </html>
