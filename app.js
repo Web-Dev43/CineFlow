@@ -15,6 +15,55 @@ function setStatus(message, error = false) {
   statusBox.textContent = message;
   statusBox.classList.toggle("error", error);
 }
+function showErrorOverlay(title, details) {
+  const overlay = document.querySelector("#error-overlay");
+  const heading = document.querySelector("#error-overlay-title");
+  const summary = document.querySelector("#error-overlay-summary");
+  const detailBox = document.querySelector("#error-overlay-details");
+  if (!overlay || !heading || !summary || !detailBox) {
+    setStatus((title ? title + ": " : "") + String(details || "Unknown error"), true);
+    return;
+  }
+  heading.textContent = title || "Something went wrong";
+  summary.textContent = "CineFlow caught a problem. Copy the details below and send them to us so we can diagnose it.";
+  detailBox.textContent = String(details || "No additional details were provided.").slice(0, 6000);
+  overlay.hidden = false;
+}
+window.addEventListener("error", (event) => {
+  const target = event.target;
+  if (target && target !== window && (target.src || target.href)) {
+    showErrorOverlay("A resource failed to load", (target.tagName || "Resource") + ": " + (target.src || target.href));
+    return;
+  }
+  showErrorOverlay("A JavaScript error occurred", [
+    event.message || "Unknown JavaScript error",
+    event.filename ? "File: " + event.filename : "",
+    event.lineno ? "Line: " + event.lineno + (event.colno ? ", column: " + event.colno : "") : "",
+    event.error && event.error.stack ? event.error.stack : ""
+  ].filter(Boolean).join("\n"));
+}, true);
+window.addEventListener("unhandledrejection", (event) => {
+  const reason = event.reason;
+  showErrorOverlay("An async operation failed", reason && (reason.stack || reason.message) ? (reason.stack || reason.message) : String(reason || "Unknown promise rejection"));
+});
+document.querySelector("#error-overlay-close")?.addEventListener("click", () => {
+  document.querySelector("#error-overlay").hidden = true;
+});
+document.querySelector("#error-overlay-copy")?.addEventListener("click", async () => {
+  const details = document.querySelector("#error-overlay-details");
+  const button = document.querySelector("#error-overlay-copy");
+  try {
+    await navigator.clipboard.writeText(details.textContent);
+    button.textContent = "Copied!";
+  } catch {
+    const range = document.createRange();
+    range.selectNodeContents(details);
+    const selection = window.getSelection();
+    selection.removeAllRanges();
+    selection.addRange(range);
+    button.textContent = "Select the text above";
+  }
+});
 function encodeBase64Url(bytes) {
   let binary = "";
   bytes.forEach(byte => binary += String.fromCharCode(byte));
@@ -50,8 +99,10 @@ async function subscribeClient(token) {
   return "Booking received. Notifications are enabled for updates to this request on this device.";
 }
 
-form.addEventListener("invalid", () => {
-  setStatus("Please complete every required field and check your email address before sending.", true);
+form.addEventListener("invalid", (event) => {
+  const field = event.target;
+  const label = field?.name || field?.type || "form field";
+  showErrorOverlay("Please check the booking form", label + ": " + (field?.validationMessage || "This field is invalid or incomplete."));
 }, true);
 
 form.addEventListener("submit", async (event) => {
@@ -117,7 +168,7 @@ form.addEventListener("submit", async (event) => {
     }).catch(error => console.warn("CineFlow admin push trigger failed:", error));
   } catch (error) {
     console.error("CineFlow booking submission failed:", error);
-    setStatus(error.message || "We couldn't send your request just yet. Please contact Cinematiclife.17 directly.", true);
+    showErrorOverlay("Booking request failed", error && (error.stack || error.message) ? (error.stack || error.message) : String(error || "Unknown submission error"));
   } finally {
     submitButton.disabled = false;
     submitButton.querySelector("span").textContent = "Submit project request";
