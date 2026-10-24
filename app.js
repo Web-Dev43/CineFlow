@@ -143,7 +143,7 @@ form.addEventListener("submit", async (event) => {
         "Content-Type": "application/json",
         "apikey": config.supabasePublishableKey,
         "Authorization": "Bearer " + config.supabasePublishableKey,
-        "Prefer": "return=representation"
+        "Prefer": "return=minimal"
       },
       body: JSON.stringify(payload)
     });
@@ -157,9 +157,6 @@ form.addEventListener("submit", async (event) => {
         : String(responseText || "").trim();
       throw new Error("Supabase returned HTTP " + response.status + (reason ? ":\n" + reason : ". No error message was returned."));
     }
-    const booking = Array.isArray(result) ? result[0] : null;
-    if (!booking?.id) throw new Error("The request response was unexpected. Please contact Cinematiclife.17 before submitting again.");
-
     form.reset();
     let message = "Request sent! It is pending review, so your date is not confirmed until Cinematiclife.17 approves it.";
     try {
@@ -172,7 +169,7 @@ form.addEventListener("submit", async (event) => {
     fetch(PUSH_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json", "apikey": config.supabasePublishableKey },
-      body: JSON.stringify({ action: "new-booking", bookingId: booking.id })
+      body: JSON.stringify({ action: "new-booking", token })
     }).catch(error => console.warn("CineFlow admin push trigger failed:", error));
   } catch (error) {
     console.error("CineFlow booking submission failed:", error);
