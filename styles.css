@@ -274,3 +274,20 @@ body{
 .consent,
 .consent label,
 .consent span { color: #202733; }
+
+
+/* Booking-page diagnostic error overlay */
+.error-overlay[hidden]{display:none!important}
+.error-overlay{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;padding:18px;background:rgba(18,23,31,.78);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);overflow-y:auto}
+.error-overlay-card{width:min(620px,100%);max-height:calc(100dvh - 36px);overflow:auto;background:#f7f3e9;color:#171b22;border:1px solid #d1cec5;border-radius:20px;padding:clamp(20px,5vw,32px);box-shadow:0 30px 100px #0008}
+.error-overlay-mark{width:38px;height:38px;display:grid;place-items:center;border-radius:50%;background:#ffe5e5;color:#9d2222;font-weight:800;font-size:22px}
+.error-overlay-eyebrow{font-size:10px;font-weight:800;letter-spacing:.16em;color:#285e9d;margin:18px 0 8px}
+.error-overlay-card h2{font-size:clamp(25px,5vw,32px);margin:0 0 10px;letter-spacing:-.04em}
+.error-overlay-card>p:not(.error-overlay-eyebrow){font-size:13px;line-height:1.6;color:#4b5563}
+.error-overlay-details{white-space:pre-wrap;overflow-wrap:anywhere;max-height:30dvh;overflow:auto;padding:14px;border-radius:10px;background:#e8e9e7;border:1px solid #d0d2d0;color:#252b34;font:12px/1.55 ui-monospace,SFMono-Regular,Menlo,monospace;user-select:text;-webkit-user-select:text}
+.error-overlay-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:15px}
+.error-overlay-actions .button,.error-overlay-actions .ghost-button{min-height:44px;justify-content:center}
+.error-overlay-actions .button{flex:1}
+.error-overlay-actions .ghost-button{color:#252b34;border-color:#c7c9c8}
+.error-overlay-note{margin:16px 0 0!important;font-size:11px!important}
+@media(max-width:480px){.error-overlay{padding:10px}.error-overlay-card{max-height:calc(100dvh - 20px);border-radius:15px;padding:20px}.error-overlay-actions{flex-direction:column}.error-overlay-actions .button,.error-overlay-actions .ghost-button{width:100%}}
