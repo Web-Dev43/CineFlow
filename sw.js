@@ -1,4 +1,4 @@
-const CACHE_NAME = "cineflow-static-v3";
+const CACHE_NAME = "cineflow-static-v4";
 const APP_SHELL = [
   "./",
   "./index.html",
@@ -6,6 +6,8 @@ const APP_SHELL = [
   "./app.js",
   "./admin.html",
   "./admin.js",
+  "./developer_inbox.html",
+  "./developer_inbox.js",
   "./config.js",
   "./manifest.webmanifest",
   "./icon.svg"
