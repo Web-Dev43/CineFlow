@@ -31,6 +31,30 @@ function showMessage(element, message, error = false) {
   element.textContent = message;
   element.style.color = error ? "var(--danger)" : "var(--muted)";
 }
+function showPushErrorOverlay(error, context = "Save notification to Supabase") {
+  const overlay = document.querySelector("#push-error-overlay");
+  const details = document.querySelector("#push-error-details");
+  const message = String(error?.message || error || "Unknown error");
+  if (details) details.textContent = [
+    "Context: " + context,
+    "Error: " + message,
+    "Page: " + location.href,
+    "Secure context: " + String(window.isSecureContext),
+    "Notification permission: " + (window.Notification ? Notification.permission : "unsupported"),
+    "Service worker supported: " + String("serviceWorker" in navigator),
+    "PushManager supported: " + String("PushManager" in window),
+    "Supabase configured: " + String(Boolean(supabase)),
+    "Time: " + new Date().toISOString()
+  ].join("\\n");
+  const title = document.querySelector("#push-error-title");
+  if (title) title.textContent = context + " failed";
+  if (overlay) overlay.hidden = false;
+  else window.alert(context + ": " + message);
+}
+function hidePushErrorOverlay() {
+  const overlay = document.querySelector("#push-error-overlay");
+  if (overlay) overlay.hidden = true;
+}
 function pushMessage(message, error = false) {
   const node = document.querySelector("#push-message");
   if (node) {
@@ -287,8 +311,12 @@ if (enablePushButton) {
     pushMessage("Setting up booking alerts…");
     try {
       pushMessage(await enableAdminPush());
+      const enabledLabel = enablePushButton.querySelector("span");
+      if (enabledLabel) enabledLabel.textContent = "Booking alerts enabled ✓";
+      enablePushButton.setAttribute("aria-label", "Booking alerts enabled on this device");
     } catch (error) {
       pushMessage(error.message || "Could not enable notifications.", true);
+      showPushErrorOverlay(error, "Save notification to Supabase");
     } finally {
       enablePushButton.disabled = false;
     }
@@ -347,3 +375,20 @@ if (!supabase) {
   supabase.auth.getSession().then(({data}) => showSignedIn(data.session?.user || null));
   supabase.auth.onAuthStateChange((_event, session) => showSignedIn(session?.user || null));
 }
+document.querySelector("#push-error-close")?.addEventListener("click", hidePushErrorOverlay);
+document.querySelector("#push-error-retry")?.addEventListener("click", () => {
+  hidePushErrorOverlay();
+  enablePushButton?.click();
+});
+document.querySelector("#push-error-copy")?.addEventListener("click", async () => {
+  const details = document.querySelector("#push-error-details")?.textContent || "";
+  try {
+    await navigator.clipboard.writeText(details);
+    document.querySelector("#push-error-copy").textContent = "Copied diagnostics ✓";
+  } catch {
+    pushMessage("Copy was blocked. Select and copy the diagnostic text manually.", true);
+  }
+});
+document.querySelector("#push-error-overlay")?.addEventListener("click", event => {
+  if (event.target.id === "push-error-overlay") hidePushErrorOverlay();
+});
