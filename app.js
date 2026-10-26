@@ -166,11 +166,23 @@ form.addEventListener("submit", async (event) => {
       message += "\n\nYour request was saved, but notifications could not be enabled on this device.";
     }
     setStatus(message);
-    fetch(PUSH_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "apikey": config.supabasePublishableKey },
-      body: JSON.stringify({ action: "new-booking", token })
-    }).catch(error => console.warn("CineFlow admin push trigger failed:", error));
+    try {
+      const pushResponse = await fetch(PUSH_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "apikey": config.supabasePublishableKey },
+        body: JSON.stringify({ action: "new-booking", token })
+      });
+      const pushResult = await pushResponse.json().catch(() => ({}));
+      if (!pushResponse.ok || pushResult.ok === false || Number(pushResult.sent) < 1) {
+        console.warn("CineFlow admin push trigger was not delivered:", pushResponse.status, pushResult);
+        setStatus(message + "\\n\\nYour request was saved, but the admin notification could not be confirmed. Please contact Cinematiclife.17 if this is urgent.");
+      } else {
+        console.info("CineFlow admin push sent to " + pushResult.sent + " device(s).");
+      }
+    } catch (pushError) {
+      console.warn("CineFlow admin push trigger failed:", pushError);
+      setStatus(message + "\\n\\nYour request was saved, but the admin notification could not be confirmed. Please contact Cinematiclife.17 if this is urgent.");
+    }
   } catch (error) {
     console.error("CineFlow booking submission failed:", error);
     showErrorOverlay("Booking request failed", error instanceof Error ? error : String(error || "Unknown submission error"));
