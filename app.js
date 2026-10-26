@@ -14,15 +14,16 @@ const PUSH_KEY = config.vapidPublicKey || "";
 
 async function submitDeveloperReport({ title, details, source = "manual", severity = "info" }) {
   if (!configured) throw new Error("CineFlow is not connected to its report inbox yet.");
+  const reportId = crypto.randomUUID();
   const response = await fetch(config.supabaseUrl.replace(/\/$/, "") + "/rest/v1/developer_reports", {
     method: "POST",
-    headers: { "Content-Type": "application/json", "apikey": config.supabasePublishableKey, "Authorization": "Bearer " + config.supabasePublishableKey, "Prefer": "return=representation" },
-    body: JSON.stringify({ title: String(title).slice(0,160), details: String(details || "").slice(0,10000), source, severity, page_path: location.pathname.slice(0,500), user_agent: navigator.userAgent.slice(0,1000) })
+    headers: { "Content-Type": "application/json", "apikey": config.supabasePublishableKey, "Authorization": "Bearer " + config.supabasePublishableKey, "Prefer": "return=minimal" },
+    body: JSON.stringify({ id: reportId, title: String(title).slice(0,160), details: String(details || "").slice(0,10000), source, severity, page_path: location.pathname.slice(0,500), user_agent: navigator.userAgent.slice(0,1000) })
   });
   const raw = await response.text(); let data = null; try { data = raw ? JSON.parse(raw) : null; } catch {}
-  if (!response.ok || !data?.[0]?.id) throw new Error(data?.message || data?.error || "Could not save the report.");
+  if (!response.ok) throw new Error(data?.message || data?.error || raw || "Could not save the report.");
   try {
-    const push = await fetch(PUSH_URL, { method:"POST", headers:{"Content-Type":"application/json","apikey":config.supabasePublishableKey}, body:JSON.stringify({action:"new-report",reportId:data[0].id}) });
+    const push = await fetch(PUSH_URL, { method:"POST", headers:{"Content-Type":"application/json","apikey":config.supabasePublishableKey}, body:JSON.stringify({action:"new-report",reportId}) });
     const result = await push.json().catch(()=>({}));
     return { saved:true, notified:push.ok && Number(result.sent)>0 };
   } catch { return { saved:true, notified:false }; }
