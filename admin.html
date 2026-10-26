@@ -44,6 +44,21 @@
       <div id="booking-list" class="booking-list"><div class="empty-state">Loading booking requests…</div></div>
     </section>
   </main>
-  <script type="module" src="admin.js?v=8"></script>
+  <section id="push-error-overlay" class="error-overlay" role="dialog" aria-modal="true" aria-labelledby="push-error-title" hidden>
+    <div class="error-overlay-card">
+      <div class="error-overlay-mark" aria-hidden="true">!</div>
+      <p class="error-overlay-eyebrow">CINEFLOW / SUPABASE NOTIFICATIONS</p>
+      <h2 id="push-error-title">Notification setup failed</h2>
+      <p>CineFlow couldn't finish saving your push notification subscription. The diagnostic details below help identify a browser, sign-in, permissions, or Supabase problem.</p>
+      <pre id="push-error-details" class="error-overlay-details"></pre>
+      <div class="error-overlay-actions">
+        <button id="push-error-retry" class="button button-primary" type="button">Try again</button>
+        <button id="push-error-copy" class="ghost-button" type="button">Copy diagnostics</button>
+        <button id="push-error-close" class="ghost-button" type="button">Close</button>
+      </div>
+      <p class="error-overlay-note">Review diagnostic details before sharing them.</p>
+    </div>
+  </section>
+  <script type="module" src="admin.js?v=9"></script>
 </body>
 </html>
