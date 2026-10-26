@@ -14,7 +14,7 @@ const PUSH_KEY = config.vapidPublicKey || "";
 
 async function submitDeveloperReport({ title, details, source = "manual", severity = "info" }) {
   if (!configured) throw new Error("CineFlow is not connected to its report inbox yet.");
-  const response = await fetch(config.supabaseUrl.replace(/\\/$/, "") + "/rest/v1/developer_reports", {
+  const response = await fetch(config.supabaseUrl.replace(/\/$/, "") + "/rest/v1/developer_reports", {
     method: "POST",
     headers: { "Content-Type": "application/json", "apikey": config.supabasePublishableKey, "Authorization": "Bearer " + config.supabasePublishableKey, "Prefer": "return=representation" },
     body: JSON.stringify({ title: String(title).slice(0,160), details: String(details || "").slice(0,10000), source, severity, page_path: location.pathname.slice(0,500), user_agent: navigator.userAgent.slice(0,1000) })
@@ -210,7 +210,7 @@ form.addEventListener("submit", async (event) => {
       }
     } catch (pushError) {
       console.warn("CineFlow admin push trigger failed:", pushError);
-      setStatus(message + "\\n\\nYour request was saved, but the admin notification could not be confirmed. Please contact Cinematiclife.17 if this is urgent.");
+      setStatus(message + "\\n\\nYour request was saved, but the admin notification could not be confirmed. Use “Report an issue” below to alert the developer.");
     }
   } catch (error) {
     console.error("CineFlow booking submission failed:", error);
