@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#090909"><meta name="robots" content="noindex,nofollow">
+<title>Developer Inbox | CineFlow</title><link rel="stylesheet" href="./styles.css?v=5"><script src="./config.js"></script>
+<style>
+.dev-shell{width:min(980px,calc(100% - 32px));margin:48px auto 80px}.dev-top{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;margin-bottom:28px}.dev-top h1{font-size:clamp(2rem,6vw,3.5rem);margin:8px 0}.dev-card{background:var(--panel,#151515);border:1px solid var(--line,#292929);border-radius:18px;padding:22px;margin:16px 0}.dev-list{display:grid;gap:12px}.dev-report{border:1px solid var(--line,#292929);border-radius:14px;padding:16px}.dev-report h3{margin:0 0 8px}.dev-meta{color:var(--muted);font-size:.86rem}.dev-details{white-space:pre-wrap;overflow-wrap:anywhere;margin:12px 0}.dev-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}.dev-actions select{max-width:180px}.dev-empty{color:var(--muted);padding:18px 0}.dev-toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center}.dev-toolbar select{max-width:220px}.dev-note{color:var(--muted);font-size:.92rem}.dev-card[hidden],#dev-login[hidden],#dev-inbox[hidden]{display:none}
+</style>
+</head><body>
+<header class="site-header"><a class="brand" href="./"><span class="brand-mark">CF</span><span>CINEFLOW<small>DEVELOPER WORKSPACE</small></span></a><a class="header-link" href="./">Booking page ↗</a></header>
+<main class="dev-shell">
+<section id="dev-login">
+<div class="dev-top"><div><p class="eyebrow">PRIVATE WORKSPACE</p><h1>Developer Inbox</h1><p>Bug reports and delivery alerts, in one place.</p></div></div>
+<form id="dev-login-form" class="dev-card auth-card"><h2>Developer sign in</h2><label class="field"><span>Email address</span><input name="email" type="email" autocomplete="username" required maxlength="254" placeholder="Developer email"></label><label class="field"><span>Password</span><input name="password" type="password" autocomplete="current-password" required></label><button class="button button-primary" type="submit">Sign in ↗</button><p id="dev-login-message" class="admin-message" role="status" aria-live="polite"></p></form>
+</section>
+<section id="dev-inbox" hidden>
+<div class="dev-top"><div><p class="eyebrow">CINEFLOW / PRIVATE</p><h1>Developer Inbox</h1><p id="dev-signed-in" class="dev-note"></p></div><button id="dev-sign-out" class="ghost-button" type="button">Sign out</button></div>
+<section class="dev-card"><h2>Notifications</h2><p class="dev-note">Turn on push alerts to be notified when a new report arrives. On iPhone, add CineFlow to your Home Screen and open it from that icon first.</p><div class="dev-toolbar"><button id="dev-enable-push" class="button button-primary" type="button">Enable inbox alerts</button><button id="dev-refresh" class="ghost-button" type="button">Refresh inbox</button></div><p id="dev-push-message" class="dev-note" role="status" aria-live="polite"></p></section>
+<section class="dev-card"><div class="dev-toolbar"><h2 style="margin:0;flex:1">Reports</h2><select id="dev-filter" aria-label="Filter reports"><option value="all">All reports</option><option value="new">New</option><option value="in_progress">In progress</option><option value="resolved">Resolved</option></select></div><div id="dev-report-list" class="dev-list" aria-live="polite"><p class="dev-empty">Loading reports…</p></div></section>
+</section></main>
+<script type="module" src="./developer_inbox.js?v=1"></script>
+</body></html>
