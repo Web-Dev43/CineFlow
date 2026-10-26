@@ -100,6 +100,13 @@ async function enableAdminPush() {
 }
 async function refreshPushStatus() {
   const node = document.querySelector("#push-message");
+  const button = document.querySelector("#enable-push");
+  const buttonLabel = button?.querySelector("span");
+  const setEnabledVisual = enabled => {
+    if (buttonLabel) buttonLabel.textContent = enabled ? "Booking alerts enabled ✓" : "Enable booking alerts";
+    if (button) button.setAttribute("aria-label", enabled ? "Booking alerts enabled on this device" : "Enable booking alerts");
+  };
+  setEnabledVisual(false);
   if (!node || !supabase) return;
   if (!("Notification" in window) || !("serviceWorker" in navigator) || !("PushManager" in window)) {
     pushMessage("Push notifications aren't supported in this browser.", true);
@@ -113,13 +120,15 @@ async function refreshPushStatus() {
     const registration = await navigator.serviceWorker.getRegistration("./");
     const subscription = registration ? await registration.pushManager.getSubscription() : null;
     if (subscription && Notification.permission === "granted") {
-      pushMessage("This browser has a local notification subscription. Tap Enable booking alerts to confirm it is saved to CineFlow.");
+      setEnabledVisual(true);
+      pushMessage("Booking alerts are enabled on this device. The subscription is saved to CineFlow.");
     } else if (Notification.permission === "granted") {
       pushMessage("Permission is allowed, but booking alerts aren't fully set up yet. Tap Enable booking alerts.");
     } else {
       pushMessage("Booking alerts are off on this device. Tap Enable booking alerts to set them up.");
     }
   } catch {
+    setEnabledVisual(false);
     pushMessage("Booking alerts aren't fully set up yet. Tap Enable booking alerts.");
   }
 }
