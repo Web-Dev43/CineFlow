@@ -11,6 +11,35 @@ const REST_URL = configured ? config.supabaseUrl.replace(/\/$/, "") + "/rest/v1/
 const PUSH_URL = config.supabaseUrl ? config.supabaseUrl.replace(/\/$/, "") + "/functions/v1/cineflow-push" : "";
 const PUSH_KEY = config.vapidPublicKey || "";
 
+
+async function submitDeveloperReport({ title, details, source = "manual", severity = "info" }) {
+  if (!configured) throw new Error("CineFlow is not connected to its report inbox yet.");
+  const response = await fetch(config.supabaseUrl.replace(/\\/$/, "") + "/rest/v1/developer_reports", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "apikey": config.supabasePublishableKey, "Authorization": "Bearer " + config.supabasePublishableKey, "Prefer": "return=representation" },
+    body: JSON.stringify({ title: String(title).slice(0,160), details: String(details || "").slice(0,10000), source, severity, page_path: location.pathname.slice(0,500), user_agent: navigator.userAgent.slice(0,1000) })
+  });
+  const raw = await response.text(); let data = null; try { data = raw ? JSON.parse(raw) : null; } catch {}
+  if (!response.ok || !data?.[0]?.id) throw new Error(data?.message || data?.error || "Could not save the report.");
+  try {
+    const push = await fetch(PUSH_URL, { method:"POST", headers:{"Content-Type":"application/json","apikey":config.supabasePublishableKey}, body:JSON.stringify({action:"new-report",reportId:data[0].id}) });
+    const result = await push.json().catch(()=>({}));
+    return { saved:true, notified:push.ok && Number(result.sent)>0 };
+  } catch { return { saved:true, notified:false }; }
+}
+document.querySelector("#report-issue")?.addEventListener("click", async () => {
+  const title = window.prompt("What should we call the issue? (Example: Admin notification failed)");
+  if (!title || !title.trim()) return;
+  const details = window.prompt("Describe what happened. Please don't include passwords or sensitive personal information.") || "";
+  const button = document.querySelector("#report-issue");
+  button.disabled = true; button.textContent = "Sending report…";
+  try {
+    const result = await submitDeveloperReport({title:title.trim(),details:details.trim(),source:"manual",severity:"warning"});
+    window.alert(result.notified ? "Report sent! It was saved and a push alert was sent to the developer." : "Report saved to the Developer Inbox. A push alert could not be confirmed, so the developer will still see it when they open the inbox.");
+  } catch (error) { window.alert("Could not send report: " + (error.message || error)); }
+  finally { button.disabled=false; button.textContent="Report an issue"; }
+});
+
 function setStatus(message, error = false) {
   statusBox.textContent = message;
   statusBox.classList.toggle("error", error);
@@ -175,7 +204,7 @@ form.addEventListener("submit", async (event) => {
       const pushResult = await pushResponse.json().catch(() => ({}));
       if (!pushResponse.ok || pushResult.ok === false || Number(pushResult.sent) < 1) {
         console.warn("CineFlow admin push trigger was not delivered:", pushResponse.status, pushResult);
-        setStatus(message + "\\n\\nYour request was saved, but the admin notification could not be confirmed. Please contact Cinematiclife.17 if this is urgent.");
+        setStatus(message + "\\n\\nYour request was saved, but the admin notification could not be confirmed. Use “Report an issue” below to alert the developer.");
       } else {
         console.info("CineFlow admin push sent to " + pushResult.sent + " device(s).");
       }
