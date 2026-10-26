@@ -282,7 +282,6 @@ if (enablePushButton) {
       pushMessage(error.message || "Could not enable notifications.", true);
     } finally {
       enablePushButton.disabled = false;
-      await refreshPushStatus();
     }
   });
   // Keep the message in sync when returning to the admin dashboard.
