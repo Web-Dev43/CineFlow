@@ -56,18 +56,37 @@ async function callPush(payload, needsAdmin = false) {
   if (!response.ok) throw new Error(result.error || "Push notification request failed.");
   return result;
 }
-async function enableAdminPush() {
-  if (!supabase) throw new Error("Supabase is not configured.");
+async function ensurePushServiceWorker() {
   if (!("serviceWorker" in navigator) || !("PushManager" in window) || !("Notification" in window)) {
     throw new Error("Push notifications aren't supported in this browser.");
   }
   if (!window.isSecureContext) throw new Error("Notifications require a secure HTTPS connection.");
+  // The admin page must register the worker itself; serviceWorker.ready can wait forever otherwise.
+  await navigator.serviceWorker.register("./sw.js", { scope: "./" });
+  const registration = await navigator.serviceWorker.ready;
+  if (!registration.pushManager) throw new Error("This browser doesn't support push notifications for this site.");
+  return registration;
+}
+async function enableAdminPush() {
+  if (!supabase) throw new Error("Supabase is not configured.");
   if (!config.vapidPublicKey || config.vapidPublicKey.includes("PASTE_VAPID")) {
     throw new Error("Add the VAPID public key to config.js first.");
   }
-  const permission = await Notification.requestPermission();
-  if (permission !== "granted") throw new Error("Notifications are blocked. Enable them in browser settings.");
-  const registration = await navigator.serviceWorker.ready;
+  // On iPhone/iPad, Web Push requires the website to be added to the Home Screen and opened as an app.
+  const isAppleMobile = /iPhone|iPad|iPod/.test(navigator.userAgent) ||
+    (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  const isStandalone = window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
+  if (isAppleMobile && !isStandalone) {
+    throw new Error("On iPhone/iPad, first use Share → Add to Home Screen, open CineFlow from its new Home Screen icon, sign in, then enable alerts there.");
+  }
+  const registration = await ensurePushServiceWorker();
+  let permission = Notification.permission;
+  if (permission !== "granted") permission = await Notification.requestPermission();
+  if (permission !== "granted") {
+    throw new Error(permission === "denied"
+      ? "Notifications are blocked for CineFlow. Allow them in your device/browser settings, then try again."
+      : "Notification permission wasn't granted. Tap Enable booking alerts and allow the browser prompt.");
+  }
   let subscription = await registration.pushManager.getSubscription();
   if (!subscription) {
     subscription = await registration.pushManager.subscribe({
@@ -75,8 +94,34 @@ async function enableAdminPush() {
       applicationServerKey: decodePublicKey(config.vapidPublicKey)
     });
   }
+  // Persist on the server every time, even if the browser already had a local subscription.
   await callPush({ action: "subscribe-admin", subscription: subscription.toJSON() }, true);
-  return "Booking alerts are enabled on this device.";
+  return "Booking alerts are enabled and saved on this device.";
+}
+async function refreshPushStatus() {
+  const node = document.querySelector("#push-message");
+  if (!node || !supabase) return;
+  if (!("Notification" in window) || !("serviceWorker" in navigator) || !("PushManager" in window)) {
+    pushMessage("Push notifications aren't supported in this browser.", true);
+    return;
+  }
+  if (Notification.permission === "denied") {
+    pushMessage("Notifications are blocked in device/browser settings. Allow them there, then refresh this page.", true);
+    return;
+  }
+  try {
+    const registration = await navigator.serviceWorker.getRegistration("./");
+    const subscription = registration ? await registration.pushManager.getSubscription() : null;
+    if (subscription && Notification.permission === "granted") {
+      pushMessage("This browser has a local notification subscription. Tap Enable booking alerts to confirm it is saved to CineFlow.");
+    } else if (Notification.permission === "granted") {
+      pushMessage("Permission is allowed, but booking alerts aren't fully set up yet. Tap Enable booking alerts.");
+    } else {
+      pushMessage("Booking alerts are off on this device. Tap Enable booking alerts to set them up.");
+    }
+  } catch {
+    pushMessage("Booking alerts aren't fully set up yet. Tap Enable booking alerts.");
+  }
 }
 function escapeHtml(value = "") {
   return String(value).replace(/[&<>"']/g, char => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[char]));
@@ -230,15 +275,18 @@ const enablePushButton = document.querySelector("#enable-push");
 if (enablePushButton) {
   enablePushButton.addEventListener("click", async () => {
     enablePushButton.disabled = true;
-    pushMessage("Enabling notifications…");
+    pushMessage("Setting up booking alerts…");
     try {
       pushMessage(await enableAdminPush());
     } catch (error) {
       pushMessage(error.message || "Could not enable notifications.", true);
     } finally {
       enablePushButton.disabled = false;
+      await refreshPushStatus();
     }
   });
+  // Keep the message in sync when returning to the admin dashboard.
+  refreshPushStatus();
 }
 document.querySelector("#filters").addEventListener("click", event => {
   const button = event.target.closest("[data-filter]");
