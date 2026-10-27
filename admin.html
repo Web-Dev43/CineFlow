@@ -35,9 +35,8 @@
         <div class="calendar-day-panel"><p class="eyebrow">SELECTED DATE</p><h3 id="calendar-selected-label"></h3><div id="calendar-day-bookings" class="calendar-day-bookings"></div></div>
       </section>
       <section class="calendar-panel" aria-labelledby="notifications-title">
-        <div class="calendar-panel-heading"><div><p class="eyebrow">STAY IN THE LOOP</p><h2 id="notifications-title">Push notifications</h2><p class="calendar-subtitle">Get an alert when a new booking request arrives. Allow notifications when your browser asks.</p></div></div>
-        <button id="enable-push" class="button button-primary" type="button"><span>Enable booking alerts</span><span aria-hidden="true">↗</span></button>
-        <p id="push-message" class="admin-message" role="status" aria-live="polite"></p>
+        <div class="calendar-panel-heading"><div><p class="eyebrow">STAY IN THE LOOP</p><h2 id="notifications-title">Email notifications</h2><p class="calendar-subtitle">CineFlow emails the admin when a new booking arrives and when a booking status changes. Email delivery requires the email provider to be configured.</p></div></div>
+        <p id="email-message" class="admin-message" role="status" aria-live="polite">Email alerts are handled securely by CineFlow’s server.</p>
       </section>
       <div class="dashboard-toolbar"><div id="filters" class="filter-row" aria-label="Booking status tabs"><button class="filter-button active" data-filter="pending" aria-pressed="true">Pending</button><button class="filter-button" data-filter="approved" aria-pressed="false">Approved</button><button class="filter-button" data-filter="declined" aria-pressed="false">Declined</button><button class="filter-button" data-filter="cancelled" aria-pressed="false">Cancelled</button></div><button id="refresh-bookings" class="ghost-button" type="button">↻ Refresh</button></div>
       <p id="dashboard-message" class="admin-message" role="status" aria-live="polite"></p>
