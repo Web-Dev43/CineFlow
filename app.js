@@ -204,14 +204,14 @@ form.addEventListener("submit", async (event) => {
       });
       const pushResult = await pushResponse.json().catch(() => ({}));
       if (!pushResponse.ok || pushResult.ok === false || Number(pushResult.sent) < 1) {
-        console.warn("CineFlow admin push trigger was not delivered:", pushResponse.status, pushResult);
-        setStatus(message + "\n\nYour request was saved, but the admin notification could not be confirmed. Use “Report an issue” below to alert the developer.");
+        console.warn("CineFlow booking notification trigger was not delivered:", pushResponse.status, pushResult);
+        setStatus(message + "\n\nYour request was saved, but the email notification could not be confirmed. Use “Report an issue” below to alert the developer.");
       } else {
         console.info("CineFlow admin push sent to " + pushResult.sent + " device(s).");
       }
     } catch (pushError) {
-      console.warn("CineFlow admin push trigger failed:", pushError);
-      setStatus(message + "\n\nYour request was saved, but the admin notification could not be confirmed. Use “Report an issue” below to alert the developer.");
+      console.warn("CineFlow booking notification trigger failed:", pushError);
+      setStatus(message + "\n\nYour request was saved, but the email notification could not be confirmed. Use “Report an issue” below to alert the developer.");
     }
   } catch (error) {
     console.error("CineFlow booking submission failed:", error);
