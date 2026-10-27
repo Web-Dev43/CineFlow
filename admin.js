@@ -63,6 +63,7 @@ function pushMessage(message, error = false) {
   }
 }
 const pushUrl = config.supabaseUrl ? config.supabaseUrl + "/functions/v1/cineflow-push" : "";
+const emailUrl = config.supabaseUrl ? config.supabaseUrl.replace(/\/$/, "") + "/functions/v1/cineflow-email" : "";
 function decodePublicKey(value) {
   const padded = value.replace(/-/g, "+").replace(/_/g, "/") + "=".repeat((4 - value.length % 4) % 4);
   return Uint8Array.from(atob(padded), char => char.charCodeAt(0));
@@ -80,6 +81,21 @@ async function callPush(payload, needsAdmin = false) {
   if (!response.ok) throw new Error(result.error || "Push notification request failed.");
   return result;
 }
+
+async function callEmail(payload, needsAdmin = false) {
+  const headers = { "Content-Type": "application/json", "apikey": config.supabasePublishableKey };
+  if (needsAdmin) {
+    const { data } = await supabase.auth.getSession();
+    const token = data.session?.access_token;
+    if (!token) throw new Error("Please sign in again.");
+    headers.Authorization = "Bearer " + token;
+  }
+  const response = await fetch(emailUrl, { method: "POST", headers, body: JSON.stringify(payload) });
+  const result = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(result.error || "Email notification request failed.");
+  return result;
+}
+
 async function ensurePushServiceWorker() {
   if (!("serviceWorker" in navigator) || !("PushManager" in window) || !("Notification" in window)) {
     throw new Error("Push notifications aren't supported in this browser.");
@@ -365,9 +381,14 @@ bookingList.addEventListener("click", async event => {
     const {error} = await supabase.from("bookings").update(update).eq("id", id);
     if (error) throw error;
     try {
-      await callPush({ action: "booking-status", bookingId: id }, true);
-    } catch (pushError) {
-      console.warn("CineFlow client status notification failed:", pushError);
+      const emailResult = await callEmail({ action: "booking-status", bookingId: id }, true);
+      if (!emailResult.ok || Number(emailResult.sent) < 1) {
+        console.warn("CineFlow status email could not be confirmed:", emailResult);
+        showMessage(dashboardMessage, "Booking updated, but the admin email alert could not be confirmed. Check the email setup.", true);
+      }
+    } catch (emailError) {
+      console.warn("CineFlow status email request failed:", emailError);
+      showMessage(dashboardMessage, "Booking updated, but the admin email alert could not be confirmed. Check the email setup.", true);
     }
     showMessage(dashboardMessage, status === "declined" ? "Booking declined and the reason was saved." : "Booking updated and moved to the " + status + " tab.");
     await loadBookings();
