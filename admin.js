@@ -380,17 +380,18 @@ bookingList.addEventListener("click", async event => {
     const update = {status, decline_reason: status === "declined" ? declineReason : null};
     const {error} = await supabase.from("bookings").update(update).eq("id", id);
     if (error) throw error;
+    let emailWarning = "";
     try {
       const emailResult = await callEmail({ action: "booking-status", bookingId: id }, true);
       if (!emailResult.ok || Number(emailResult.sent) < 1) {
         console.warn("CineFlow status email could not be confirmed:", emailResult);
-        showMessage(dashboardMessage, "Booking updated, but the admin email alert could not be confirmed. Check the email setup.", true);
+        emailWarning = " The admin email alert could not be confirmed; check the email setup.";
       }
     } catch (emailError) {
       console.warn("CineFlow status email request failed:", emailError);
-      showMessage(dashboardMessage, "Booking updated, but the admin email alert could not be confirmed. Check the email setup.", true);
+      emailWarning = " The admin email alert could not be confirmed; check the email setup.";
     }
-    showMessage(dashboardMessage, status === "declined" ? "Booking declined and the reason was saved." : "Booking updated and moved to the " + status + " tab.");
+    showMessage(dashboardMessage, (status === "declined" ? "Booking declined and the reason was saved." : "Booking updated and moved to the " + status + " tab.") + emailWarning, Boolean(emailWarning));
     await loadBookings();
   } catch (error) {
     showMessage(dashboardMessage, "Couldn't update this booking. Check admin permissions and try again.", true);
