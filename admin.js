@@ -146,13 +146,13 @@ async function refreshPushStatus() {
     if (subscription && Notification.permission === "granted") {
       // Re-sync the browser's existing subscription to Supabase on each admin load.
       // A local subscription alone does not prove the server has a usable endpoint.
-      const syncResult = await callPush({ action: "subscribe-admin", subscription: subscription.toJSON() }, true);
-      if (syncResult && syncResult.ok) {
+      try {
+        await callPush({ action: "subscribe-admin", subscription: subscription.toJSON() }, true);
         setEnabledVisual(true);
         pushMessage("Booking alerts are enabled and the device subscription has been synced to CineFlow.");
-      } else {
+      } catch (error) {
         setEnabledVisual(false);
-        pushMessage("This device's alert subscription could not be synced. Please try enabling alerts again.");
+        pushMessage(error.message || "This device's alert subscription could not be synced. Please try enabling alerts again.", true);
       }
     } else if (Notification.permission === "granted") {
       pushMessage("Permission is allowed, but booking alerts aren't fully set up yet. Tap Enable booking alerts.");
