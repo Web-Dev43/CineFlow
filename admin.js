@@ -238,9 +238,6 @@ function renderBookings() {
       "Referral: " + (item.referral_source || "Not provided"),
       ...(status === "declined" && item.decline_reason ? ["Decline reason: " + item.decline_reason] : [])
     ].join("\n");
-    const paymentStatus = ["not_requested","awaiting_payment","awaiting_verification","paid_verified","refunded","disputed"].includes(item.payment_status) ? item.payment_status : "not_requested";
-    const paymentLabels = {not_requested:"Not requested",awaiting_payment:"Awaiting payment",awaiting_verification:"Awaiting verification",paid_verified:"Payment verified",refunded:"Refunded",disputed:"Disputed"};
-    const paymentPanel = status === "approved" ? '<div class="payment-admin-panel"><strong>Payment & customer protection</strong><p>Agreed price: ' + (item.agreed_price == null ? 'Not set' : '$' + Number(item.agreed_price).toFixed(2)) + '</p><p>Payment status: <span class="status-pill">' + escapeHtml(paymentLabels[paymentStatus]) + '</span></p><div class="booking-actions"><button data-action="set-price" data-id="' + escapeHtml(item.id) + '">Set / update price</button>' + (item.agreed_price != null ? '<button data-action="payment-message" data-id="' + escapeHtml(item.id) + '">Prepare customer payment message</button>' : '') + (paymentStatus === "awaiting_payment" ? '<button data-action="payment-awaiting-verification" data-id="' + escapeHtml(item.id) + '">Customer says paid</button>' : '') + (paymentStatus === "awaiting_verification" ? '<button class="approve" data-action="payment-paid-verified" data-id="' + escapeHtml(item.id) + '">Verify payment</button>' : '') + '</div><small>Only mark payment verified after checking the transaction directly in Cash App. A screenshot alone is not proof.</small></div>' : "";
     const buttons = status === "pending"
       ? '<button class="approve" data-action="read" data-id="' + escapeHtml(item.id) + '">Read</button><button data-action="declined" data-id="' + escapeHtml(item.id) + '">Decline</button>'
       : status === "read"
@@ -248,7 +245,7 @@ function renderBookings() {
         : status === "approved"
           ? '<button data-action="declined" data-id="' + escapeHtml(item.id) + '">Decline</button><button data-action="cancelled" data-id="' + escapeHtml(item.id) + '">Cancel booking</button>'
           : '<button data-action="approved" data-id="' + escapeHtml(item.id) + '">Mark as accepted & set price</button>';
-    return '<article class="booking-card"><div class="booking-card-top"><div><h3>' + escapeHtml(item.client_name) + ' <span style="color:var(--muted);font-weight:400">· ' + escapeHtml(item.service) + '</span></h3><div class="booking-meta">' + escapeHtml(item.client_email) + '<br>Received ' + escapeHtml(new Date(item.created_at).toLocaleString()) + '</div></div><span class="status-pill ' + status + '">' + escapeHtml(status === "approved" ? "accepted" : status) + '</span></div><div class="booking-details">' + escapeHtml(details) + "\n\n" + escapeHtml(item.project_details) + '</div>' + paymentPanel + '<div class="booking-actions">' + buttons + '</div></article>';
+    return '<article class="booking-card"><div class="booking-card-top"><div><h3>' + escapeHtml(item.client_name) + ' <span style="color:var(--muted);font-weight:400">· ' + escapeHtml(item.service) + '</span></h3><div class="booking-meta">' + escapeHtml(item.client_email) + '<br>Received ' + escapeHtml(new Date(item.created_at).toLocaleString()) + '</div></div><span class="status-pill ' + status + '">' + escapeHtml(status === "approved" ? "accepted" : status) + '</span></div><div class="booking-details">' + escapeHtml(details) + "\n\n" + escapeHtml(item.project_details) + '</div>' + '<div class="booking-actions">' + buttons + '</div></article>';
   }).join("");
 }
 function renderCalendar() {
@@ -367,58 +364,25 @@ bookingList.addEventListener("click", async event => {
   const status = button.dataset.action;
   const selectedBooking = bookings.find(item => item.id === id);
   if (!selectedBooking) return;
-  if (status === "set-price" || status === "approved") {
-    const entered = window.prompt("Enter the exact agreed price in USD before asking the customer to pay:", selectedBooking.agreed_price == null ? "" : Number(selectedBooking.agreed_price).toFixed(2));
-    if (entered === null) return;
-    const price = Number(entered.trim());
-    if (!entered.trim() || !Number.isFinite(price) || price < 0 || !/^\\d+(?:\\.\\d{1,2})?$/.test(entered.trim())) {
-      window.alert("Enter a valid price, such as 125 or 125.50. No changes were made.");
-      return;
-    }
+  if (status === "approved") {
+    const conflict = bookings.find(item => item.id !== id && item.status === "approved" && item.requested_date === selectedBooking.requested_date);
+    if (conflict && !window.confirm("Another accepted booking has the same requested date. Accept this request anyway?")) return;
+  }
+  button.disabled = true;
+  try {
+    const update = {status, decline_reason: null};
+    const {error} = await supabase.from("bookings").update(update).eq("id", id);
+    if (error) throw error;
     if (status === "approved") {
-      const conflict = bookings.find(item => item.id !== id && item.status === "approved" && item.requested_date === selectedBooking.requested_date);
-      if (conflict && !window.confirm("Another accepted booking has the same requested date. Accept this request anyway?")) return;
+      try { await callEmail({action:"booking-status",bookingId:id}, true); } catch (emailError) { console.warn("Status email could not be confirmed:",emailError); }
     }
-    button.disabled = true;
-    try {
-      const update = status === "approved"
-        ? {status:"approved", agreed_price:price, payment_status:"awaiting_payment", decline_reason:null}
-        : {agreed_price:price, payment_status:selectedBooking.payment_status === "not_requested" ? "awaiting_payment" : selectedBooking.payment_status};
-      const {error} = await supabase.from("bookings").update(update).eq("id", id);
-      if (error) throw error;
-      if (status === "approved") {
-        try { await callEmail({action:"booking-status",bookingId:id}, true); } catch (emailError) { console.warn("Status email could not be confirmed:",emailError); }
-      }
-      showMessage(dashboardMessage, "Saved the exact price. Payment is awaiting customer payment; no automatic payment was processed.");
-      await loadBookings();
-    } catch (error) {
-      showMessage(dashboardMessage, "Couldn't save the price. Check the admin permissions and try again.", true);
-      button.disabled = false;
-    }
-    return;
+    showMessage(dashboardMessage, status === "approved" ? "Booking accepted." : status === "read" ? "Request marked as read." : status === "declined" ? "Request declined." : status === "cancelled" ? "Booking cancelled." : "Booking updated.");
+    await loadBookings();
+  } catch (error) {
+    showMessage(dashboardMessage, "Couldn't update the booking. Check the admin permissions and try again.", true);
+    button.disabled = false;
   }
-  if (status === "payment-message") {
-    if (selectedBooking.agreed_price == null) { window.alert("Set the agreed price first."); return; }
-    const message = "Hi " + selectedBooking.client_name + ", your CineFlow booking is accepted.\n\nService: " + selectedBooking.service + "\nProject: " + selectedBooking.event_name + "\nDate: " + niceDate(selectedBooking.requested_date) + (selectedBooking.requested_time ? "\nTime: " + niceTime(selectedBooking.requested_time) : "") + "\nAgreed total: $" + Number(selectedBooking.agreed_price).toFixed(2) + "\n\nIf you choose to pay via Cash App, use https://cash.app/$kejh17 and pay the exact agreed amount. Please only pay after checking these details. Payment is not marked verified until it is checked directly in Cash App. Keep your receipt. For cancellations, refunds, or rescheduling, contact us before paying so the terms can be agreed in writing.\n\nReply to this email if anything is incorrect.";
-    window.location.href = "mailto:" + encodeURIComponent(selectedBooking.client_email) + "?subject=" + encodeURIComponent("CineFlow booking details and payment") + "&body=" + encodeURIComponent(message);
-    return;
-  }
-  if (status === "payment-awaiting-verification" || status === "payment-paid-verified") {
-    const next = status === "payment-awaiting-verification" ? "awaiting_verification" : "paid_verified";
-    const promptText = next === "paid_verified" ? "Confirm you checked the transaction directly in Cash App and verified the amount and sender." : "Only use this after the customer says they sent payment. You'll still need to check Cash App before verifying.";
-    if (!window.confirm(promptText)) return;
-    button.disabled = true;
-    try {
-      const {error} = await supabase.from("bookings").update({payment_status:next}).eq("id",id);
-      if (error) throw error;
-      showMessage(dashboardMessage, next === "paid_verified" ? "Payment marked verified. Keep the transaction record with the booking." : "Marked as awaiting verification. This does not mean payment has been received.");
-      await loadBookings();
-    } catch (error) {
-      showMessage(dashboardMessage, "Couldn't update payment status. Check admin permissions and try again.", true);
-      button.disabled = false;
-    }
-    return;
-  }
+  return;
   if (status === "declined") {
     if (!selectedBooking) return;
     window.alert("(Recommended) Email " + selectedBooking.client_email + " to let them know you declined (sorry i couldn't automatically do it, it cost money -Team of Developers: Yuan)");
