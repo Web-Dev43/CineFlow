@@ -390,3 +390,16 @@ body{
   .booking-step-actions .button{min-height:42px;padding:10px 13px}
   .privacy-note{margin-top:10px;font-size:9px}
 }
+
+
+/* Admin dashboard overview and inbox search */
+.admin-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:26px 0 18px}
+.admin-stats article{display:flex;flex-direction:column;gap:9px;padding:17px 18px;border:1px solid #d4d0c6;border-radius:14px;background:linear-gradient(145deg,#faf7ef,#f0eee7)}
+.admin-stats article span{font-size:11px;color:#596270}
+.admin-stats article strong{font:700 30px/1 'Space Grotesk',sans-serif;color:#202733}
+.booking-search-row{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:12px;margin:18px 0 12px}
+.booking-search-row label{font-size:12px;font-weight:700;color:#202733}
+.booking-search-row input{width:100%;min-width:0;min-height:44px;border:1px solid #d1cec5;border-radius:10px;padding:10px 13px;background:#fffdf8;color:#171b22;font:inherit}
+.booking-search-row input:focus{outline:2px solid #3478c7;outline-offset:2px}
+#search-count{font-size:11px;color:#596270;white-space:nowrap}
+@media(max-width:640px){.admin-stats{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:18px 0 14px}.admin-stats article{padding:13px}.admin-stats article strong{font-size:25px}.booking-search-row{grid-template-columns:1fr;gap:7px}.booking-search-row input{font-size:16px}}
