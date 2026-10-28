@@ -159,7 +159,8 @@ form.addEventListener("submit", async (event) => {
     budget_range: data.budget_range || null,
     referral_source: data.referral_source || null,
     project_details: data.project_details.trim(),
-    // Let PostgreSQL apply the column default ("approved" = accepted) so the INSERT policy checks the canonical value.
+    // New requests begin in the admin inbox until they are read or declined.
+    status: "pending",
     client_push_token: token
   };
 
