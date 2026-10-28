@@ -230,6 +230,15 @@ function updateBookingStats() {
   set("#stat-approved", count("approved"));
   set("#stat-declined", count("declined"));
 }
+function findScheduleConflicts(booking) {
+  if (!booking.requested_date) return [];
+  return bookings.filter(other => {
+    if (other.id === booking.id || other.status !== "approved" || other.requested_date !== booking.requested_date) return false;
+    // If either request has no time, flag the date for a human to check.
+    if (!booking.requested_time || !other.requested_time) return true;
+    return String(booking.requested_time).slice(0, 5) === String(other.requested_time).slice(0, 5);
+  });
+}
 function renderBookings() {
   const query = bookingSearch.trim().toLocaleLowerCase();
   const visible = bookings.filter(item => {
@@ -256,6 +265,13 @@ function renderBookings() {
       "Referral: " + (item.referral_source || "Not provided"),
       ...(status === "declined" && item.decline_reason ? ["Decline reason: " + item.decline_reason] : [])
     ].join("\n");
+    const conflicts = status === "approved" ? [] : findScheduleConflicts(item);
+    const conflictNotice = conflicts.length
+      ? '<div class="booking-conflict" role="note"><strong>Schedule conflict to review</strong><span>' +
+        escapeHtml(conflicts.length + " accepted booking" + (conflicts.length === 1 ? "" : "s") + " overlap this date" +
+          (item.requested_time && conflicts.every(other => other.requested_time) ? " at " + niceTime(item.requested_time) : " or need a time check") +
+          ". Review the schedule before accepting.") + '</span></div>'
+      : "";
     const buttons = status === "pending"
       ? '<button class="approve" data-action="approved" data-id="' + escapeHtml(item.id) + '">Read & Accept</button><button data-action="declined" data-id="' + escapeHtml(item.id) + '">Decline</button>'
       : status === "read"
@@ -263,7 +279,7 @@ function renderBookings() {
         : status === "approved"
           ? '<button data-action="declined" data-id="' + escapeHtml(item.id) + '">Decline</button><button data-action="cancelled" data-id="' + escapeHtml(item.id) + '">Cancel booking</button>'
           : '<button data-action="approved" data-id="' + escapeHtml(item.id) + '">Accept booking</button>';
-    return '<article class="booking-card"><div class="booking-card-top"><div><h3>' + escapeHtml(item.client_name) + ' <span style="color:var(--muted);font-weight:400">· ' + escapeHtml(item.service) + '</span></h3><div class="booking-meta">' + escapeHtml(item.client_email) + '<br>Received ' + escapeHtml(new Date(item.created_at).toLocaleString()) + '</div></div><span class="status-pill ' + status + '">' + escapeHtml(status === "approved" ? "accepted" : status) + '</span></div><div class="booking-details">' + escapeHtml(details) + "\n\n" + escapeHtml(item.project_details) + '</div>' + '<div class="booking-actions">' + buttons + '</div></article>';
+    return '<article class="booking-card"><div class="booking-card-top"><div><h3>' + escapeHtml(item.client_name) + ' <span style="color:var(--muted);font-weight:400">· ' + escapeHtml(item.service) + '</span></h3><div class="booking-meta">' + escapeHtml(item.client_email) + '<br>Received ' + escapeHtml(new Date(item.created_at).toLocaleString()) + '</div></div><span class="status-pill ' + status + '">' + escapeHtml(status === "approved" ? "accepted" : status) + '</span></div>' + conflictNotice + '<div class="booking-details">' + escapeHtml(details) + "\n\nProject details:\n" + escapeHtml(item.project_details || "Not provided") + '</div>' + '<div class="booking-actions">' + buttons + '</div></article>';
   }).join("");
 }
 function renderCalendar() {
@@ -394,8 +410,13 @@ bookingList.addEventListener("click", async event => {
   const selectedBooking = bookings.find(item => item.id === id);
   if (!selectedBooking) return;
   if (status === "approved") {
-    const conflict = bookings.find(item => item.id !== id && item.status === "approved" && item.requested_date === selectedBooking.requested_date);
-    if (conflict && !window.confirm("Another accepted booking has the same requested date. Accept this request anyway?")) return;
+    const conflicts = findScheduleConflicts(selectedBooking);
+    if (conflicts.length) {
+      const overlap = conflicts.map(item => (item.event_name || item.service || "Project") + " — " + niceDate(item.requested_date) + " at " + niceTime(item.requested_time)).join("\\n");
+      const message = "Schedule conflict detected with an accepted booking:\\n\\n" + overlap +
+        "\\n\\nThis request will stay in its current status unless you explicitly confirm. Check whether the time can work before accepting.";
+      if (!window.confirm(message + "\\n\\nAccept this conflicting booking anyway?")) return;
+    }
   }
   button.disabled = true;
   try {
