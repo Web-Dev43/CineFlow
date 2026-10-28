@@ -45,7 +45,7 @@ function showPushErrorOverlay(error, context = "Save notification to Supabase") 
     "PushManager supported: " + String("PushManager" in window),
     "Supabase configured: " + String(Boolean(supabase)),
     "Time: " + new Date().toISOString()
-  ].join("\\n");
+  ].join("\n");
   const title = document.querySelector("#push-error-title");
   if (title) title.textContent = context + " failed";
   if (overlay) overlay.hidden = false;
@@ -216,7 +216,7 @@ async function loadBookings() {
     return;
   }
   bookings = data || [];
-  showMessage(dashboardMessage, bookings.length ? bookings.length + " booking" + (bookings.length === 1 ? "" : "s") + " total. New requests start as Accepted." : "No bookings yet. New client requests will appear here.");
+  showMessage(dashboardMessage, bookings.length ? bookings.length + " booking" + (bookings.length === 1 ? "" : "s") + " total. New requests start as pending." : "No bookings yet. New client requests will appear here.");
   renderBookings();
   renderCalendar();
 }
@@ -248,7 +248,7 @@ function renderBookings() {
         : status === "approved"
           ? '<button data-action="declined" data-id="' + escapeHtml(item.id) + '">Decline</button><button data-action="cancelled" data-id="' + escapeHtml(item.id) + '">Cancel booking</button>'
           : '<button data-action="approved" data-id="' + escapeHtml(item.id) + '">Mark as accepted & set price</button>';
-    return '<article class="booking-card"><div class="booking-card-top"><div><h3>' + escapeHtml(item.client_name) + ' <span style="color:var(--muted);font-weight:400">· ' + escapeHtml(item.service) + '</span></h3><div class="booking-meta">' + escapeHtml(item.client_email) + '<br>Received ' + escapeHtml(new Date(item.created_at).toLocaleString()) + '</div></div><span class="status-pill ' + status + '">' + escapeHtml(status === "approved" ? "accepted" : status) + '</span></div><div class="booking-details">' + escapeHtml(details) + "\\n\\n" + escapeHtml(item.project_details) + '</div>' + paymentPanel + '<div class="booking-actions">' + buttons + '</div></article>';
+    return '<article class="booking-card"><div class="booking-card-top"><div><h3>' + escapeHtml(item.client_name) + ' <span style="color:var(--muted);font-weight:400">· ' + escapeHtml(item.service) + '</span></h3><div class="booking-meta">' + escapeHtml(item.client_email) + '<br>Received ' + escapeHtml(new Date(item.created_at).toLocaleString()) + '</div></div><span class="status-pill ' + status + '">' + escapeHtml(status === "approved" ? "accepted" : status) + '</span></div><div class="booking-details">' + escapeHtml(details) + "\n\n" + escapeHtml(item.project_details) + '</div>' + paymentPanel + '<div class="booking-actions">' + buttons + '</div></article>';
   }).join("");
 }
 function renderCalendar() {
@@ -399,7 +399,7 @@ bookingList.addEventListener("click", async event => {
   }
   if (status === "payment-message") {
     if (selectedBooking.agreed_price == null) { window.alert("Set the agreed price first."); return; }
-    const message = "Hi " + selectedBooking.client_name + ", your CineFlow booking is accepted.\\n\\nService: " + selectedBooking.service + "\\nProject: " + selectedBooking.event_name + "\\nDate: " + niceDate(selectedBooking.requested_date) + (selectedBooking.requested_time ? "\\nTime: " + niceTime(selectedBooking.requested_time) : "") + "\\nAgreed total: $" + Number(selectedBooking.agreed_price).toFixed(2) + "\\n\\nIf you choose to pay via Cash App, use https://cash.app/$kejh17 and pay the exact agreed amount. Please only pay after checking these details. Payment is not marked verified until it is checked directly in Cash App. Keep your receipt. For cancellations, refunds, or rescheduling, contact us before paying so the terms can be agreed in writing.\\n\\nReply to this email if anything is incorrect.";
+    const message = "Hi " + selectedBooking.client_name + ", your CineFlow booking is accepted.\n\nService: " + selectedBooking.service + "\nProject: " + selectedBooking.event_name + "\nDate: " + niceDate(selectedBooking.requested_date) + (selectedBooking.requested_time ? "\nTime: " + niceTime(selectedBooking.requested_time) : "") + "\nAgreed total: $" + Number(selectedBooking.agreed_price).toFixed(2) + "\n\nIf you choose to pay via Cash App, use https://cash.app/$kejh17 and pay the exact agreed amount. Please only pay after checking these details. Payment is not marked verified until it is checked directly in Cash App. Keep your receipt. For cancellations, refunds, or rescheduling, contact us before paying so the terms can be agreed in writing.\n\nReply to this email if anything is incorrect.";
     window.location.href = "mailto:" + encodeURIComponent(selectedBooking.client_email) + "?subject=" + encodeURIComponent("CineFlow booking details and payment") + "&body=" + encodeURIComponent(message);
     return;
   }
