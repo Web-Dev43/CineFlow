@@ -159,7 +159,7 @@ form.addEventListener("submit", async (event) => {
     budget_range: data.budget_range || null,
     referral_source: data.referral_source || null,
     project_details: data.project_details.trim(),
-    // Let PostgreSQL apply the column default ("pending") so the INSERT policy checks the canonical value.
+    // Let PostgreSQL apply the column default ("approved" = accepted) so the INSERT policy checks the canonical value.
     client_push_token: token
   };
 
@@ -188,7 +188,7 @@ form.addEventListener("submit", async (event) => {
       throw new Error("Supabase returned HTTP " + response.status + (reason ? ":\n" + reason : ". No error message was returned."));
     }
     form.reset();
-    const message = "Request sent! It is pending review, so your date is not confirmed until Cinematiclife.17 approves it.";
+    const message = "Request sent! Your booking is accepted.";
     try {
       await subscribeClient(token);
     } catch (pushError) {
