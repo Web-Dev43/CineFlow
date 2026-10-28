@@ -98,3 +98,19 @@ create policy "CineFlow admins can update bookings"
   ));
 
 -- Push tables have no browser policies; only the server-side Edge Function accesses them.
+
+
+-- Customer reviews are hidden until approved by a CineFlow admin.
+create table if not exists public.reviews (id uuid primary key default gen_random_uuid(), reviewer_name text not null check (char_length(trim(reviewer_name)) between 1 and 80), rating integer not null check (rating between 1 and 5), review_text text not null check (char_length(trim(review_text)) between 5 and 1200), status text not null default 'pending' check (status in ('pending','approved','rejected')), created_at timestamptz not null default now());
+create index if not exists reviews_public_listing_idx on public.reviews (created_at desc) where status = 'approved';
+alter table public.reviews enable row level security;
+grant select, insert on public.reviews to anon, authenticated;
+grant update, delete on public.reviews to authenticated;
+drop policy if exists "Anyone can read approved reviews" on public.reviews;
+create policy "Anyone can read approved reviews" on public.reviews for select to anon, authenticated using (status = 'approved' or exists (select 1 from public.admin_users where admin_users.user_id = (select auth.uid())));
+drop policy if exists "Anyone can submit pending reviews" on public.reviews;
+create policy "Anyone can submit pending reviews" on public.reviews for insert to anon, authenticated with check (status = 'pending');
+drop policy if exists "CineFlow admins can moderate reviews" on public.reviews;
+create policy "CineFlow admins can moderate reviews" on public.reviews for update to authenticated using (exists (select 1 from public.admin_users where admin_users.user_id = (select auth.uid()))) with check (exists (select 1 from public.admin_users where admin_users.user_id = (select auth.uid())));
+drop policy if exists "CineFlow admins can remove reviews" on public.reviews;
+create policy "CineFlow admins can remove reviews" on public.reviews for delete to authenticated using (exists (select 1 from public.admin_users where admin_users.user_id = (select auth.uid())));
