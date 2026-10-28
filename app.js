@@ -220,14 +220,24 @@ async function subscribeClient(token) {
   return "Booking received. Notifications are enabled for updates to this request on this device.";
 }
 
-form.addEventListener("invalid", (event) => {
-  const field = event.target;
-  const label = field?.name || field?.type || "form field";
-  showErrorOverlay("Please check the booking form", label + ": " + (field?.validationMessage || "This field is invalid or incomplete."));
-}, true);
+// The wizard uses native field validation in each step instead of a full-screen error overlay.
+form.noValidate = true;
 
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
+  // Validate every required field before sending, including fields on earlier wizard steps.
+  for (const field of form.querySelectorAll("input, select, textarea")) {
+    if (!field.checkValidity()) {
+      const panel = field.closest("[data-step]");
+      if (panel) {
+        activeBookingStep = Number(panel.dataset.step);
+        updateBookingStep();
+      }
+      field.reportValidity();
+      field.focus();
+      return;
+    }
+  }
   if (!configured) {
     setStatus("CineFlow is not connected to Supabase yet. Please contact Cinematiclife.17 directly.", true);
     return;
