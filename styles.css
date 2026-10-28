@@ -291,3 +291,4 @@ body{
 .error-overlay-actions .ghost-button{color:#252b34;border-color:#c7c9c8}
 .error-overlay-note{margin:16px 0 0!important;font-size:11px!important}
 @media(max-width:480px){.error-overlay{padding:10px}.error-overlay-card{max-height:calc(100dvh - 20px);border-radius:15px;padding:20px}.error-overlay-actions{flex-direction:column}.error-overlay-actions .button,.error-overlay-actions .ghost-button{width:100%}}
+\n\n/* Payment safety and admin tracking */\n.payment-disclosure{margin:14px 0 0;padding:14px 16px;border:1px solid #3478c733;border-radius:12px;background:#3478c70b;color:#303b49;font-size:12px;line-height:1.6}.payment-admin-panel{margin:14px 0;padding:15px;border:1px solid #3478c733;border-radius:12px;background:#3478c70a;color:#202733}.payment-admin-panel p{margin:8px 0;color:#4b5563;font-size:13px}.payment-admin-panel small{display:block;margin-top:10px;color:#4b5563;line-height:1.5}.payment-admin-panel .booking-actions{margin-top:10px}\n
