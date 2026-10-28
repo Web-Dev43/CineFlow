@@ -239,12 +239,12 @@ function renderBookings() {
       ...(status === "declined" && item.decline_reason ? ["Decline reason: " + item.decline_reason] : [])
     ].join("\n");
     const buttons = status === "pending"
-      ? '<button class="approve" data-action="read" data-id="' + escapeHtml(item.id) + '">Read</button><button data-action="declined" data-id="' + escapeHtml(item.id) + '">Decline</button>'
+      ? '<button class="approve" data-action="approved" data-id="' + escapeHtml(item.id) + '">Read & Accept</button><button data-action="declined" data-id="' + escapeHtml(item.id) + '">Decline</button>'
       : status === "read"
-        ? '<button data-action="declined" data-id="' + escapeHtml(item.id) + '">Decline</button><button data-action="approved" data-id="' + escapeHtml(item.id) + '">Accept & set price</button>'
+        ? '<button data-action="declined" data-id="' + escapeHtml(item.id) + '">Decline</button><button data-action="approved" data-id="' + escapeHtml(item.id) + '">Accept booking</button>'
         : status === "approved"
           ? '<button data-action="declined" data-id="' + escapeHtml(item.id) + '">Decline</button><button data-action="cancelled" data-id="' + escapeHtml(item.id) + '">Cancel booking</button>'
-          : '<button data-action="approved" data-id="' + escapeHtml(item.id) + '">Mark as accepted & set price</button>';
+          : '<button data-action="approved" data-id="' + escapeHtml(item.id) + '">Accept booking</button>';
     return '<article class="booking-card"><div class="booking-card-top"><div><h3>' + escapeHtml(item.client_name) + ' <span style="color:var(--muted);font-weight:400">· ' + escapeHtml(item.service) + '</span></h3><div class="booking-meta">' + escapeHtml(item.client_email) + '<br>Received ' + escapeHtml(new Date(item.created_at).toLocaleString()) + '</div></div><span class="status-pill ' + status + '">' + escapeHtml(status === "approved" ? "accepted" : status) + '</span></div><div class="booking-details">' + escapeHtml(details) + "\n\n" + escapeHtml(item.project_details) + '</div>' + '<div class="booking-actions">' + buttons + '</div></article>';
   }).join("");
 }
