@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#090909">
   <title>Booking Manager | CineFlow</title>
   <meta name="robots" content="noindex,nofollow">
-  <link rel="stylesheet" href="styles.css?v=6">
+  <link rel="stylesheet" href="styles.css?v=7">
   <script src="config.js"></script>
 </head>
 <body>
@@ -37,6 +37,8 @@
       <section class="calendar-panel" aria-labelledby="notifications-title">
         <div class="calendar-panel-heading"><div><p class="eyebrow">BOOKING INBOX</p><h2 id="notifications-title">New requests</h2><p class="calendar-subtitle">Open a new request and choose Read to move it into Already read, or Decline to move it into Declined. You must email the client yourself; CineFlow does not send them a decline email.</p></div></div>
       </section>
+      <div class="admin-stats" aria-label="Booking totals"><article><span>Total requests</span><strong id="stat-total">0</strong></article><article><span>Needs review</span><strong id="stat-pending">0</strong></article><article><span>Accepted</span><strong id="stat-approved">0</strong></article><article><span>Declined</span><strong id="stat-declined">0</strong></article></div>
+      <div class="booking-search-row"><label for="booking-search">Search bookings</label><input id="booking-search" type="search" placeholder="Name, email, service, project, location…" autocomplete="off"><span id="search-count" aria-live="polite"></span></div>
       <div class="dashboard-toolbar"><div id="filters" class="filter-row" aria-label="Booking inbox tabs"><button class="filter-button active" data-filter="pending" aria-pressed="true">Bookings just sent in</button><button class="filter-button" data-filter="read" aria-pressed="false">Already read</button><button class="filter-button" data-filter="approved" aria-pressed="false">Accepted</button><button class="filter-button" data-filter="declined" aria-pressed="false">Declined</button><button class="filter-button" data-filter="cancelled" aria-pressed="false">Cancelled</button></div><button id="refresh-bookings" class="ghost-button" type="button">↻ Refresh</button></div>
       <p id="dashboard-message" class="admin-message" role="status" aria-live="polite"></p>
       <div id="booking-list" class="booking-list"><div class="empty-state">Loading booking requests…</div></div>
@@ -57,6 +59,6 @@
       <p class="error-overlay-note">Review diagnostic details before sharing them.</p>
     </div>
   </section>
-  <script type="module" src="admin.js?v=12"></script>
+  <script type="module" src="admin.js?v=13"></script>
 </body>
 </html>
