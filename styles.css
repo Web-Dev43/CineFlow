@@ -403,3 +403,34 @@ body{
 .booking-search-row input:focus{outline:2px solid #3478c7;outline-offset:2px}
 #search-count{font-size:11px;color:#596270;white-space:nowrap}
 @media(max-width:640px){.admin-stats{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:18px 0 14px}.admin-stats article{padding:13px}.admin-stats article strong{font-size:25px}.booking-search-row{grid-template-columns:1fr;gap:7px}.booking-search-row input{font-size:16px}}
+
+
+/* Admin calendar: clearer navigation, reliable touch targets, and readable event density */
+.calendar-panel{overflow:hidden}
+.calendar-nav{flex-wrap:wrap}
+.calendar-nav .calendar-today-button{min-height:38px;padding:8px 13px;border-radius:999px;font-size:11px}
+.calendar-nav .calendar-today-button:disabled{opacity:.45;cursor:default}
+.calendar-nav .ghost-button:not(.calendar-today-button){width:40px;height:40px;display:grid;place-items:center;padding:0;font-size:20px}
+.calendar-weekdays span{font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+.calendar-day{min-height:96px;transition:background .15s,border-color .15s,box-shadow .15s;touch-action:manipulation}
+.calendar-day:focus-visible,.calendar-nav button:focus-visible{outline:3px solid #3478c7;outline-offset:2px;z-index:2}
+.calendar-day.selected{box-shadow:inset 0 0 0 2px #3478c744}
+.calendar-day.today .calendar-number:after{content:"TODAY";display:block;font-size:7px;letter-spacing:.06em;margin-top:3px;color:#3478c7}
+.calendar-events{gap:4px}
+.calendar-event-label{min-height:19px;border:1px solid #3478c724}
+.calendar-extra{font-weight:700}
+.calendar-day-panel{scroll-margin-top:18px}
+.calendar-booking{background:#fffdf8;border-color:#d8d5cc}
+.calendar-booking>div span,.calendar-booking p{color:#4b5563;line-height:1.5}
+@media(max-width:640px){
+ .calendar-nav{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:7px}
+ .calendar-nav .calendar-today-button{grid-column:1/-1;grid-row:2;width:100%}
+ .calendar-nav strong{grid-column:2;grid-row:1;min-width:0;font-size:12px}
+ .calendar-nav #calendar-previous{grid-column:1;grid-row:1}
+ .calendar-nav #calendar-next{grid-column:3;grid-row:1}
+ .calendar-day{min-height:66px;gap:4px;padding-top:6px}
+ .calendar-event-label{font-size:7px;line-height:1.1;min-height:15px}
+ .calendar-number{font-weight:650}
+ .calendar-day.today .calendar-number:after{font-size:6px}
+ .calendar-extra{font-size:7px}
+}
