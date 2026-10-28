@@ -378,16 +378,17 @@ bookingList.addEventListener("click", async event => {
     const {error} = await supabase.from("bookings").update(update).eq("id", id);
     if (error) throw error;
     let emailWarning = "";
-    try {
-      if (status === "read") throw new Error("No email is sent when a booking is marked as read.");
-      const emailResult = await callEmail({ action: "booking-status", bookingId: id }, true);
-      if (!emailResult.ok || Number(emailResult.sent) < 1) {
-        console.warn("CineFlow status email could not be confirmed:", emailResult);
+    if (status !== "read") {
+      try {
+        const emailResult = await callEmail({ action: "booking-status", bookingId: id }, true);
+        if (!emailResult.ok || Number(emailResult.sent) < 1) {
+          console.warn("CineFlow status email could not be confirmed:", emailResult);
+          emailWarning = " The admin email alert could not be confirmed; check the email setup.";
+        }
+      } catch (emailError) {
+        console.warn("CineFlow status email request failed:", emailError);
         emailWarning = " The admin email alert could not be confirmed; check the email setup.";
       }
-    } catch (emailError) {
-      console.warn("CineFlow status email request failed:", emailError);
-      emailWarning = " The admin email alert could not be confirmed; check the email setup.";
     }
     showMessage(dashboardMessage, (status === "declined" ? "Booking declined. Remember to email the client yourself." : status === "read" ? "Booking marked as read and moved to Already read. No client email was sent." : "Booking updated and moved to the " + status + " tab.") + emailWarning, Boolean(emailWarning));
     await loadBookings();
