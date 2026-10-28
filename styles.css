@@ -434,3 +434,11 @@ body{
  .calendar-day.today .calendar-number:after{font-size:6px}
  .calendar-extra{font-size:7px}
 }
+
+
+/* Admin schedule-conflict warnings */
+.booking-conflict{display:grid;gap:4px;margin:14px 0 10px;padding:12px 14px;border:1px solid #b96b2b66;border-left:4px solid #b96b2b;border-radius:10px;background:#fff0df;color:#713d12;font-size:12px;line-height:1.5}
+.booking-conflict strong{font-size:12px}
+.booking-conflict span{overflow-wrap:anywhere}
+.booking-details{white-space:pre-wrap;overflow-wrap:anywhere}
+@media(max-width:640px){.booking-conflict{padding:11px;font-size:11px}}
