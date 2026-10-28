@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#090909">
   <title>Booking Manager | CineFlow</title>
   <meta name="robots" content="noindex,nofollow">
-  <link rel="stylesheet" href="styles.css?v=7">
+  <link rel="stylesheet" href="styles.css?v=8">
   <script src="config.js"></script>
 </head>
 <body>
@@ -28,7 +28,7 @@
     <section id="dashboard-section" hidden>
       <div class="admin-top"><div><p class="eyebrow">CINEFLOW / WORKSPACE</p><h1>Bookings</h1><p id="signed-in-label">Signed in</p></div><button id="sign-out" class="ghost-button" type="button">Sign out</button></div>
       <section class="calendar-panel" aria-labelledby="calendar-title">
-        <div class="calendar-panel-heading"><div><p class="eyebrow">SCHEDULE</p><h2 id="calendar-title">Booking calendar</h2><p class="calendar-subtitle">Browse this month through five years ahead. Only accepted bookings appear here.</p></div><div class="calendar-nav"><button id="calendar-previous" class="ghost-button" type="button" aria-label="Previous month">←</button><strong id="calendar-heading"></strong><button id="calendar-next" class="ghost-button" type="button" aria-label="Next month">→</button></div></div>
+        <div class="calendar-panel-heading"><div><p class="eyebrow">SCHEDULE</p><h2 id="calendar-title">Booking calendar</h2><p class="calendar-subtitle">Accepted bookings at a glance. Select any date to review its schedule.</p></div><div class="calendar-nav"><button id="calendar-today" class="ghost-button calendar-today-button" type="button">Today</button><button id="calendar-previous" class="ghost-button" type="button" aria-label="Previous month">←</button><strong id="calendar-heading"></strong><button id="calendar-next" class="ghost-button" type="button" aria-label="Next month">→</button></div></div>
         <div class="calendar-legend"><span><i class="calendar-dot approved"></i> Accepted bookings</span></div>
         <div class="calendar-weekdays" aria-hidden="true"><span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span></div>
         <div id="calendar-grid" class="calendar-grid" aria-label="Monthly booking calendar"></div>
@@ -59,6 +59,6 @@
       <p class="error-overlay-note">Review diagnostic details before sharing them.</p>
     </div>
   </section>
-  <script type="module" src="admin.js?v=13"></script>
+  <script type="module" src="admin.js?v=14"></script>
 </body>
 </html>
