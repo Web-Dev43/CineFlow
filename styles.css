@@ -357,3 +357,36 @@ body{
  .booking-step-actions .button{padding:12px 14px;font-size:12px}
  .booking-review-row{grid-template-columns:1fr;gap:3px;padding:11px 12px}
 }
+
+
+/* Compact mobile booking wizard so step controls stay easier to reach */
+@media(max-width:640px){
+  .booking-first-intro{padding:16px 0 12px}
+  .booking-first-intro h1{font-size:clamp(30px,8.5vw,40px);line-height:1;margin-bottom:8px}
+  .booking-first-intro .eyebrow{font-size:9px;margin-bottom:8px}
+  .booking-first-intro .intro-copy{font-size:12px;line-height:1.45}
+  .booking-trust{margin-top:10px;padding:8px 10px}
+  .booking-trust-icon{width:24px;height:24px}
+  .booking-trust strong{font-size:10px}
+  .booking-trust small{font-size:9px}
+  .form-card{padding:16px 13px}
+  .form-heading{padding-bottom:13px;margin-bottom:12px}
+  .form-heading h2{font-size:22px}
+  .form-heading .eyebrow{margin-bottom:5px}
+  .step-label{padding:6px 7px;font-size:7px}
+  .form-note{margin-bottom:13px;font-size:11px;line-height:1.4}
+  .booking-progress{margin:13px 0 17px}
+  .booking-step-title{margin-bottom:14px}
+  .booking-step-title h3{font-size:23px;margin-bottom:5px}
+  .booking-step-title>p:last-child{font-size:11px;line-height:1.4}
+  .booking-step-panel .field-grid{gap:12px}
+  .booking-step-panel [name="project_details"]{min-height:82px;height:82px}
+  .booking-step-panel .field textarea{min-height:82px;padding:10px 12px}
+  .booking-step-panel .field input,
+  .booking-step-panel .field select{min-height:43px;padding:10px 12px}
+  .booking-step-panel .field{gap:6px}
+  .booking-step-panel .field>span{font-size:11px}
+  .booking-step-actions{margin-top:15px;padding-top:12px}
+  .booking-step-actions .button{min-height:42px;padding:10px 13px}
+  .privacy-note{margin-top:10px;font-size:9px}
+}
