@@ -424,7 +424,11 @@ bookingList.addEventListener("click", async event => {
     return;
   }
 
-  if (status === "declined" && !window.confirm("Decline this booking request? The status will be saved, but CineFlow will not automatically email the client about a decline.")) return;
+  if (status === "declined") {
+    const clientEmail = selectedBooking.client_email || "the email address the client provided";
+    const declineMessage = "Once you decline it, email " + clientEmail + " so they know 🤓 (I couldn\u0027t make email notifications for everyone because a domain costs money) — Team of Developers: Yuan\n\nDecline this booking request?";
+    if (!window.confirm(declineMessage)) return;
+  }
   if (status === "cancelled" && !window.confirm("Cancel this accepted booking? The status will be saved, but you should contact the client yourself.")) return;
 
   if (status === "approved") {
