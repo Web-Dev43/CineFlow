@@ -73,7 +73,7 @@ h2{font-size:clamp(24px,4vw,32px);letter-spacing:-.04em;margin-bottom:0}
 .booking-card h3{font-size:18px;margin:0 0 6px}
 .booking-meta{color:var(--muted);font-size:12px;line-height:1.7}
 .status-pill{display:inline-flex;align-items:center;gap:6px;border:1px solid #424242;border-radius:999px;padding:6px 9px;font-size:10px;text-transform:uppercase;letter-spacing:.08em;white-space:nowrap}
-.status-pill.pending{color:#f3d58a;border-color:#65552b}.status-pill.approved{color:var(--accent);border-color:#465526}.status-pill.declined,.status-pill.cancelled{color:#ff9a9a;border-color:#653939}
+.status-pill.pending{color:#f3d58a;border-color:#65552b}.status-pill.read{color:#b8c6ff;border-color:#424e78}.status-pill.approved{color:var(--accent);border-color:#465526}.status-pill.declined,.status-pill.cancelled{color:#ff9a9a;border-color:#653939}
 .booking-details{color:#d4d0c9;font-size:13px;line-height:1.7;white-space:pre-wrap;margin:15px 0}
 .booking-actions{display:flex;flex-wrap:wrap;gap:8px;border-top:1px solid #292929;padding-top:14px}
 .booking-actions button{border:1px solid #393939;background:#171717;color:#eee;border-radius:8px;padding:9px 12px;font-size:12px;cursor:pointer}
