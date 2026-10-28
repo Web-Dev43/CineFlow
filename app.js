@@ -287,6 +287,8 @@ form.addEventListener("submit", async (event) => {
       throw new Error("Supabase returned HTTP " + response.status + (reason ? ":\n" + reason : ". No error message was returned."));
     }
     form.reset();
+    activeBookingStep = 0;
+    updateBookingStep();
     let adminEmailSent = false;
     try {
       const emailResponse = await fetch(EMAIL_URL, {
