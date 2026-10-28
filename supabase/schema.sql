@@ -20,7 +20,7 @@ create table if not exists public.bookings (
   budget_range text,
   referral_source text,
   project_details text not null check (char_length(trim(project_details)) between 1 and 3000),
-  status text not null default 'pending' check (status in ('pending','approved','declined','cancelled')),
+  status text not null default 'approved' check (status in ('pending','approved','declined','cancelled')),
   decline_reason text,
   client_push_token text,
   created_at timestamptz not null default now(),
@@ -71,9 +71,10 @@ create policy "Admins can read their own admin record"
   using ((select auth.uid()) = user_id);
 
 drop policy if exists "Anyone can submit a pending booking request" on public.bookings;
-create policy "Anyone can submit a pending booking request"
+drop policy if exists "Anyone can submit an accepted booking" on public.bookings;
+create policy "Anyone can submit an accepted booking"
   on public.bookings for insert to anon, authenticated
-  with check (status = 'pending');
+  with check (status = 'approved');
 
 drop policy if exists "CineFlow admins can view all bookings" on public.bookings;
 create policy "CineFlow admins can view all bookings"
