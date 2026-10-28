@@ -35,10 +35,9 @@
         <div class="calendar-day-panel"><p class="eyebrow">SELECTED DATE</p><h3 id="calendar-selected-label"></h3><div id="calendar-day-bookings" class="calendar-day-bookings"></div></div>
       </section>
       <section class="calendar-panel" aria-labelledby="notifications-title">
-        <div class="calendar-panel-heading"><div><p class="eyebrow">STAY IN THE LOOP</p><h2 id="notifications-title">Email notifications</h2><p class="calendar-subtitle">CineFlow emails the admin when a new booking arrives and when a booking status changes. Email delivery requires the email provider to be configured.</p></div></div>
-        <p id="email-message" class="admin-message" role="status" aria-live="polite">Email alerts are handled securely by CineFlow’s server.</p>
+        <div class="calendar-panel-heading"><div><p class="eyebrow">BOOKING INBOX</p><h2 id="notifications-title">New requests</h2><p class="calendar-subtitle">Open a new request and choose Read to move it into Already read, or Decline to move it into Declined. You must email the client yourself; CineFlow does not send them a decline email.</p></div></div>
       </section>
-      <div class="dashboard-toolbar"><div id="filters" class="filter-row" aria-label="Booking status tabs"><button class="filter-button" data-filter="pending" aria-pressed="false">Pending (older requests)</button><button class="filter-button active" data-filter="approved" aria-pressed="true">Accepted</button><button class="filter-button" data-filter="declined" aria-pressed="false">Declined</button><button class="filter-button" data-filter="cancelled" aria-pressed="false">Cancelled</button></div><button id="refresh-bookings" class="ghost-button" type="button">↻ Refresh</button></div>
+      <div class="dashboard-toolbar"><div id="filters" class="filter-row" aria-label="Booking inbox tabs"><button class="filter-button active" data-filter="pending" aria-pressed="true">Bookings just sent in</button><button class="filter-button" data-filter="read" aria-pressed="false">Already read</button><button class="filter-button" data-filter="approved" aria-pressed="false">Accepted</button><button class="filter-button" data-filter="declined" aria-pressed="false">Declined</button><button class="filter-button" data-filter="cancelled" aria-pressed="false">Cancelled</button></div><button id="refresh-bookings" class="ghost-button" type="button">↻ Refresh</button></div>
       <p id="dashboard-message" class="admin-message" role="status" aria-live="polite"></p>
       <div id="booking-list" class="booking-list"><div class="empty-state">Loading booking requests…</div></div>
     </section>
@@ -58,6 +57,6 @@
       <p class="error-overlay-note">Review diagnostic details before sharing them.</p>
     </div>
   </section>
-  <script type="module" src="admin.js?v=9"></script>
+  <script type="module" src="admin.js?v=10"></script>
 </body>
 </html>
