@@ -9,7 +9,6 @@ const configured = Boolean(config.supabaseUrl && config.supabasePublishableKey &
   !config.supabasePublishableKey.includes("YOUR_SUPABASE"));
 const REST_URL = configured ? config.supabaseUrl.replace(/\/$/, "") + "/rest/v1/bookings" : "";
 const PUSH_URL = config.supabaseUrl ? config.supabaseUrl.replace(/\/$/, "") + "/functions/v1/cineflow-push" : "";
-const EMAIL_URL = config.supabaseUrl ? config.supabaseUrl.replace(/\/$/, "") + "/functions/v1/cineflow-email" : "";
 const PUSH_KEY = config.vapidPublicKey || "";
 
 
@@ -197,23 +196,6 @@ form.addEventListener("submit", async (event) => {
       message += "\n\nYour request was saved, but notifications could not be enabled on this device.";
     }
     setStatus(message);
-    try {
-      const emailResponse = await fetch(EMAIL_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "apikey": config.supabasePublishableKey },
-        body: JSON.stringify({ action: "new-booking", token })
-      });
-      const emailResult = await emailResponse.json().catch(() => ({}));
-      if (!emailResponse.ok || emailResult.ok === false || Number(emailResult.sent) < 1) {
-        console.warn("CineFlow booking email could not be confirmed:", emailResponse.status, emailResult);
-        setStatus(message + "\n\nYour request was saved, but the admin email notification could not be confirmed yet.");
-      } else {
-        console.info("CineFlow booking email sent to " + emailResult.sent + " admin address(es).");
-      }
-    } catch (emailError) {
-      console.warn("CineFlow booking email request failed:", emailError);
-      setStatus(message + "\n\nYour request was saved, but the admin email notification could not be confirmed yet.");
-    }
   } catch (error) {
     console.error("CineFlow booking submission failed:", error);
     showErrorOverlay("Booking request failed", error instanceof Error ? error : String(error || "Unknown submission error"));
