@@ -232,11 +232,15 @@ function updateBookingStats() {
 }
 function findScheduleConflicts(booking) {
   if (!booking.requested_date) return [];
-  return bookings.filter(other => {
-    if (other.id === booking.id || other.status !== "approved" || other.requested_date !== booking.requested_date) return false;
-    // If either request has no time, flag the date for a human to check.
-    if (!booking.requested_time || !other.requested_time) return true;
-    return String(booking.requested_time).slice(0, 5) === String(other.requested_time).slice(0, 5);
+  return bookings.filter(other =>
+    other.id !== booking.id &&
+    other.status === "approved" &&
+    other.requested_date === booking.requested_date
+  ).map(other => {
+    const sameKnownTime = Boolean(booking.requested_time && other.requested_time) &&
+      String(booking.requested_time).slice(0, 5) === String(other.requested_time).slice(0, 5);
+    const needsTimeCheck = !booking.requested_time || !other.requested_time;
+    return {...other, conflictLevel: sameKnownTime ? "super-important" : "review", needsTimeCheck};
   });
 }
 function renderBookings() {
@@ -266,12 +270,19 @@ function renderBookings() {
       ...(status === "declined" && item.decline_reason ? ["Decline reason: " + item.decline_reason] : [])
     ].join("\n");
     const conflicts = status === "approved" ? [] : findScheduleConflicts(item);
-    const conflictNotice = conflicts.length
-      ? '<div class="booking-conflict" role="note"><strong>Schedule conflict to review</strong><span>' +
-        escapeHtml(conflicts.length + " accepted booking" + (conflicts.length === 1 ? "" : "s") + " overlap this date" +
-          (item.requested_time && conflicts.every(other => other.requested_time) ? " at " + niceTime(item.requested_time) : " or need a time check") +
-          ". Review the schedule before accepting.") + '</span></div>'
-      : "";
+    const exactTimeConflicts = conflicts.filter(other => other.conflictLevel === "super-important");
+    const dateReviewConflicts = conflicts.filter(other => other.conflictLevel === "review");
+    const conflictNotice = exactTimeConflicts.length
+      ? '<div class="booking-conflict booking-conflict-critical" role="alert"><strong>⚠ SUPER IMPORTANT — same date and time</strong><span>' +
+        escapeHtml(exactTimeConflicts.length + " accepted booking" + (exactTimeConflicts.length === 1 ? "" : "s") + " already start at " + niceTime(item.requested_time) + ". Check this carefully before accepting.") +
+        '</span></div>' +
+        (dateReviewConflicts.length ? '<div class="booking-conflict booking-conflict-review" role="note"><strong>Important — same day, time needs review</strong><span>' +
+          escapeHtml(dateReviewConflicts.length + " other accepted booking" + (dateReviewConflicts.length === 1 ? "" : "s") + " share this date but have a different or unspecified time. Review the schedule.") + '</span></div>' : "")
+      : conflicts.length
+        ? '<div class="booking-conflict booking-conflict-review" role="note"><strong>Important — same day, review schedule</strong><span>' +
+          escapeHtml(conflicts.length + " accepted booking" + (conflicts.length === 1 ? "" : "s") + " share this date. The times differ or one is unspecified, so review the schedule before accepting.") +
+          '</span></div>'
+        : "";
     const buttons = status === "pending"
       ? '<button class="approve" data-action="approved" data-id="' + escapeHtml(item.id) + '">Read & Accept</button><button data-action="declined" data-id="' + escapeHtml(item.id) + '">Decline</button>'
       : status === "read"
@@ -412,10 +423,18 @@ bookingList.addEventListener("click", async event => {
   if (status === "approved") {
     const conflicts = findScheduleConflicts(selectedBooking);
     if (conflicts.length) {
-      const overlap = conflicts.map(item => (item.event_name || item.service || "Project") + " — " + niceDate(item.requested_date) + " at " + niceTime(item.requested_time)).join("\\n");
-      const message = "Schedule conflict detected with an accepted booking:\\n\\n" + overlap +
-        "\\n\\nThis request will stay in its current status unless you explicitly confirm. Check whether the time can work before accepting.";
-      if (!window.confirm(message + "\\n\\nAccept this conflicting booking anyway?")) return;
+      const exact = conflicts.filter(item => item.conflictLevel === "super-important");
+      const review = conflicts.filter(item => item.conflictLevel === "review");
+      const overlap = conflicts.map(item =>
+        (item.conflictLevel === "super-important" ? "[SUPER IMPORTANT: SAME TIME] " : "[IMPORTANT: SAME DAY] ") +
+        (item.event_name || item.service || "Project") + " — " + niceDate(item.requested_date) + " at " + niceTime(item.requested_time)
+      ).join("\\n");
+      const severity = exact.length
+        ? "SUPER IMPORTANT: " + exact.length + " accepted booking(s) already have this exact date and start time."
+        : "IMPORTANT: accepted booking(s) already exist on this date, but the time differs or needs checking.";
+      const message = severity + (review.length ? "\\nThere are also " + review.length + " same-day booking(s) to review." : "") +
+        "\\n\\n" + overlap + "\\n\\nCheck the schedule before accepting. The request will remain unchanged if you cancel.";
+      if (!window.confirm(message + "\\n\\nAccept this booking anyway?")) return;
     }
   }
   button.disabled = true;
