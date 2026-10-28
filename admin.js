@@ -16,7 +16,7 @@ const calendarGrid = document.querySelector("#calendar-grid");
 const calendarHeading = document.querySelector("#calendar-heading");
 const calendarDayBookings = document.querySelector("#calendar-day-bookings");
 const calendarSelectedLabel = document.querySelector("#calendar-selected-label");
-let currentFilter = "approved";
+let currentFilter = "pending";
 let bookings = [];
 const today = new Date();
 const calendarStart = new Date(today.getFullYear(), today.getMonth(), 1);
@@ -227,7 +227,7 @@ function renderBookings() {
     return;
   }
   bookingList.innerHTML = visible.map(item => {
-    const status = ["pending","approved","declined","cancelled"].includes(item.status) ? item.status : "pending";
+    const status = ["pending","read","approved","declined","cancelled"].includes(item.status) ? item.status : "pending";
     const details = [
       "Event / project: " + (item.event_name || "Unnamed project"),
       "Preferred date: " + niceDate(item.requested_date),
@@ -238,11 +238,13 @@ function renderBookings() {
       "Referral: " + (item.referral_source || "Not provided"),
       ...(status === "declined" && item.decline_reason ? ["Decline reason: " + item.decline_reason] : [])
     ].join("\n");
-    const buttons = status === "approved"
-      ? '<button data-action="declined" data-id="' + escapeHtml(item.id) + '">Decline</button><button data-action="cancelled" data-id="' + escapeHtml(item.id) + '">Cancel booking</button>'
-      : status === "pending"
-        ? '<button class="approve" data-action="approved" data-id="' + escapeHtml(item.id) + '">Accept</button><button data-action="declined" data-id="' + escapeHtml(item.id) + '">Decline</button>'
-        : '<button data-action="approved" data-id="' + escapeHtml(item.id) + '">Mark as accepted</button>';
+    const buttons = status === "pending"
+      ? '<button class="approve" data-action="read" data-id="' + escapeHtml(item.id) + '">Read</button><button data-action="declined" data-id="' + escapeHtml(item.id) + '">Decline</button>'
+      : status === "read"
+        ? '<button data-action="declined" data-id="' + escapeHtml(item.id) + '">Decline</button>'
+        : status === "approved"
+          ? '<button data-action="declined" data-id="' + escapeHtml(item.id) + '">Decline</button><button data-action="cancelled" data-id="' + escapeHtml(item.id) + '">Cancel booking</button>'
+          : '<button data-action="approved" data-id="' + escapeHtml(item.id) + '">Mark as accepted</button>';
     return '<article class="booking-card"><div class="booking-card-top"><div><h3>' + escapeHtml(item.client_name) + ' <span style="color:var(--muted);font-weight:400">· ' + escapeHtml(item.service) + '</span></h3><div class="booking-meta">' + escapeHtml(item.client_email) + '<br>Received ' + escapeHtml(new Date(item.created_at).toLocaleString()) + '</div></div><span class="status-pill ' + status + '">' + escapeHtml(status === "approved" ? "accepted" : status) + '</span></div><div class="booking-details">' + escapeHtml(details) + "\n\n" + escapeHtml(item.project_details) + '</div><div class="booking-actions">' + buttons + '</div></article>';
   }).join("");
 }
@@ -284,7 +286,7 @@ function renderCalendarDay() {
     return;
   }
   calendarDayBookings.innerHTML = dayBookings.map(item => {
-    const status = ["pending","approved","declined","cancelled"].includes(item.status) ? item.status : "pending";
+    const status = ["pending","read","approved","declined","cancelled"].includes(item.status) ? item.status : "pending";
     return '<article class="calendar-booking"><div><strong>' + escapeHtml(item.event_name || item.service || "Project") + '</strong><span>' + escapeHtml(item.service) + ' · ' + escapeHtml(niceTime(item.requested_time)) + '</span></div><span class="status-pill ' + status + '">' + escapeHtml(status === "approved" ? "accepted" : status) + '</span><p>' + escapeHtml(item.client_name) + ' · ' + escapeHtml(item.client_email) + '</p><p>Where: ' + escapeHtml(item.location || "Not provided") + '</p>' + (status === "declined" && item.decline_reason ? '<p class="decline-reason"><strong>Decline reason:</strong> ' + escapeHtml(item.decline_reason) + '</p>' : '') + '</article>';
   }).join("");
 }
@@ -377,6 +379,7 @@ bookingList.addEventListener("click", async event => {
     if (error) throw error;
     let emailWarning = "";
     try {
+      if (status === "read") throw new Error("No email is sent when a booking is marked as read.");
       const emailResult = await callEmail({ action: "booking-status", bookingId: id }, true);
       if (!emailResult.ok || Number(emailResult.sent) < 1) {
         console.warn("CineFlow status email could not be confirmed:", emailResult);
@@ -386,7 +389,7 @@ bookingList.addEventListener("click", async event => {
       console.warn("CineFlow status email request failed:", emailError);
       emailWarning = " The admin email alert could not be confirmed; check the email setup.";
     }
-    showMessage(dashboardMessage, (status === "declined" ? "Booking declined and the reason was saved." : "Booking updated and moved to the " + status + " tab.") + emailWarning, Boolean(emailWarning));
+    showMessage(dashboardMessage, (status === "declined" ? "Booking declined. Remember to email the client yourself." : status === "read" ? "Booking marked as read and moved to Already read. No client email was sent." : "Booking updated and moved to the " + status + " tab.") + emailWarning, Boolean(emailWarning));
     await loadBookings();
   } catch (error) {
     showMessage(dashboardMessage, "Couldn't update this booking. Check admin permissions and try again.", true);
