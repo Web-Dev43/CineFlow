@@ -12,7 +12,7 @@
   <link rel="apple-touch-icon" href="./icon.svg">
   <title>Book a Project | CineFlow</title>
   <meta name="description" content="Request a video shoot, editing project, event coverage, sports highlight, music video, or photography session with Cinematiclife.17.">
-  <link rel="stylesheet" href="styles.css?v=6">
+  <link rel="stylesheet" href="styles.css?v=7">
   <script src="config.js"></script>
 </head>
 <body>
@@ -66,7 +66,7 @@
         <p class="privacy-note"><span aria-hidden="true">🔒</span> Your details are only used to review and respond to your request.</p>
       </form>
     </section>
-    <footer class="site-footer"><span>© <span id="year"></span> CineFlow</span><span>Made for the next frame.</span><button id="report-issue" class="ghost-button" type="button">Report an issue</button></footer>
+<section class="reviews-section" id="reviews" aria-labelledby="reviews-title"><div class="reviews-heading"><div><p class="eyebrow">REAL WORDS, REAL PEOPLE</p><h2 id="reviews-title">Customer reviews</h2><p class="reviews-intro">Only real submissions approved for display appear here. No made-up testimonials.</p></div><a class="text-link" href="#leave-review">Share your experience ↗</a></div><div id="reviews-list" class="reviews-list" aria-live="polite"><p class="reviews-empty">Loading reviews…</p></div><div class="review-form-card" id="leave-review"><p class="eyebrow">YOUR EXPERIENCE</p><h3>Leave a review</h3><p class="review-form-note">Reviews are checked before appearing publicly. Please be honest and don’t include private information.</p><form id="review-form"><div class="review-fields"><label class="field"><span>Your name <b>*</b></span><input name="reviewer_name" required maxlength="80" autocomplete="name" placeholder="Name to display"></label><label class="field"><span>Rating <b>*</b></span><select name="rating" required><option value="" selected disabled>Choose a rating</option><option value="5">★★★★★ — Loved it</option><option value="4">★★★★☆ — Great</option><option value="3">★★★☆☆ — Good</option><option value="2">★★☆☆☆ — Could be better</option><option value="1">★☆☆☆☆ — Not satisfied</option></select></label></div><label class="field review-text-field"><span>Your review <b>*</b></span><textarea name="review_text" required minlength="5" maxlength="1200" rows="4" placeholder="Tell others about your experience…"></textarea></label><label class="review-honeypot" aria-hidden="true">Leave empty<input name="website" tabindex="-1" autocomplete="off"></label><button class="button button-primary" id="review-submit" type="submit"><span>Submit review for approval</span><span>↗</span></button><p id="review-status" class="status-message" role="status" aria-live="polite"></p></form></div></section>\n    <footer class="site-footer"><span>© <span id="year"></span> CineFlow</span><span>Made for the next frame.</span><button id="report-issue" class="ghost-button" type="button">Report an issue</button></footer>
   </main>
 
   <section id="error-overlay" class="error-overlay" role="alertdialog" aria-modal="true" aria-labelledby="error-overlay-title" aria-describedby="error-overlay-summary" hidden>
@@ -83,6 +83,6 @@
       <p class="error-overlay-note">If you were submitting a booking, check the dashboard before trying again to avoid duplicate requests.</p>
     </div>
   </section>
-\n  <script type="module" src="app.js?v=12"></script>
+\n  <script type="module" src="app.js?v=13"></script>
 </body>
 </html>
