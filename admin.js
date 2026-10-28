@@ -16,7 +16,7 @@ const calendarGrid = document.querySelector("#calendar-grid");
 const calendarHeading = document.querySelector("#calendar-heading");
 const calendarDayBookings = document.querySelector("#calendar-day-bookings");
 const calendarSelectedLabel = document.querySelector("#calendar-selected-label");
-let currentFilter = "pending";
+let currentFilter = "approved";
 let bookings = [];
 const today = new Date();
 const calendarStart = new Date(today.getFullYear(), today.getMonth(), 1);
@@ -216,7 +216,7 @@ async function loadBookings() {
     return;
   }
   bookings = data || [];
-  showMessage(dashboardMessage, bookings.length ? bookings.length + " booking" + (bookings.length === 1 ? "" : "s") + " total. New requests start in Pending." : "No bookings yet. New client requests will appear here.");
+  showMessage(dashboardMessage, bookings.length ? bookings.length + " booking" + (bookings.length === 1 ? "" : "s") + " total. New requests start as Accepted." : "No bookings yet. New client requests will appear here.");
   renderBookings();
   renderCalendar();
 }
@@ -238,11 +238,11 @@ function renderBookings() {
       "Referral: " + (item.referral_source || "Not provided"),
       ...(status === "declined" && item.decline_reason ? ["Decline reason: " + item.decline_reason] : [])
     ].join("\n");
-    const buttons = status === "pending"
-      ? '<button class="approve" data-action="approved" data-id="' + escapeHtml(item.id) + '">Approve</button><button data-action="declined" data-id="' + escapeHtml(item.id) + '">Decline</button>'
-      : status === "approved"
-        ? '<button data-action="pending" data-id="' + escapeHtml(item.id) + '">Move to pending</button><button data-action="cancelled" data-id="' + escapeHtml(item.id) + '">Cancel booking</button>'
-        : '<button data-action="pending" data-id="' + escapeHtml(item.id) + '">Reopen to pending</button>';
+    const buttons = status === "approved"
+      ? '<button data-action="declined" data-id="' + escapeHtml(item.id) + '">Decline</button><button data-action="cancelled" data-id="' + escapeHtml(item.id) + '">Cancel booking</button>'
+      : status === "pending"
+        ? '<button class="approve" data-action="approved" data-id="' + escapeHtml(item.id) + '">Accept</button><button data-action="declined" data-id="' + escapeHtml(item.id) + '">Decline</button>'
+        : '<button data-action="approved" data-id="' + escapeHtml(item.id) + '">Mark as accepted</button>';
     return '<article class="booking-card"><div class="booking-card-top"><div><h3>' + escapeHtml(item.client_name) + ' <span style="color:var(--muted);font-weight:400">· ' + escapeHtml(item.service) + '</span></h3><div class="booking-meta">' + escapeHtml(item.client_email) + '<br>Received ' + escapeHtml(new Date(item.created_at).toLocaleString()) + '</div></div><span class="status-pill ' + status + '">' + escapeHtml(status) + '</span></div><div class="booking-details">' + escapeHtml(details) + "\n\n" + escapeHtml(item.project_details) + '</div><div class="booking-actions">' + buttons + '</div></article>';
   }).join("");
 }
@@ -360,15 +360,10 @@ bookingList.addEventListener("click", async event => {
   if (!button || !supabase) return;
   const id = button.dataset.id;
   const status = button.dataset.action;
-  let declineReason = "";
+  const selectedBooking = bookings.find(item => item.id === id);
   if (status === "declined") {
-    const enteredReason = window.prompt("Why are you declining this booking? Please give the client a clear explanation.");
-    if (enteredReason === null) return;
-    declineReason = enteredReason.trim();
-    if (!declineReason) {
-      window.alert("Please enter a reason before declining this booking.");
-      return;
-    }
+    if (!selectedBooking) return;
+    window.alert("(Recommended) Email " + selectedBooking.client_email + " to let them know you declined (sorry i couldn't automatically do it, it cost money -Team of Developers: Yuan)");
   }
   if (status === "approved") {
     const selected = bookings.find(item => item.id === id);
@@ -377,7 +372,7 @@ bookingList.addEventListener("click", async event => {
   }
   button.disabled = true;
   try {
-    const update = {status, decline_reason: status === "declined" ? declineReason : null};
+    const update = {status, decline_reason: null};
     const {error} = await supabase.from("bookings").update(update).eq("id", id);
     if (error) throw error;
     let emailWarning = "";
