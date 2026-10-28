@@ -12,7 +12,7 @@
   <link rel="apple-touch-icon" href="./icon.svg">
   <title>Book a Project | CineFlow</title>
   <meta name="description" content="Request a video shoot, editing project, event coverage, sports highlight, music video, or photography session with Cinematiclife.17.">
-  <link rel="stylesheet" href="styles.css?v=7">
+  <link rel="stylesheet" href="styles.css?v=8">
   <script src="config.js"></script>
 </head>
 <body>
@@ -35,21 +35,52 @@
       <div class="form-heading"><div><p class="eyebrow">BOOKING REQUEST</p><h2 id="booking-title">Let’s plan your project</h2></div><span class="step-label">STEP 01 <span aria-hidden="true">/</span> YOUR REQUEST</span></div>
       <p class="form-note">Start with the basics. The more you share about your idea, the better we can understand what you need. <span class="required-note">* Required fields</span></p>
       <form id="booking-form">
-        <div class="field-grid">
-          <label class="field"><span>Your name <b>*</b></span><input name="client_name" autocomplete="name" required maxlength="100" placeholder="Full name"></label>
-          <label class="field"><span>Email address <b>*</b></span><input name="client_email" type="email" autocomplete="email" required maxlength="254" placeholder="you@example.com"></label>
-          <label class="field"><span>Phone number <small>optional</small></span><input name="client_phone" type="tel" autocomplete="tel" maxlength="40" placeholder="Best number to reach you"></label>
-          <label class="field"><span>Event or project name <b>*</b></span><input name="event_name" required maxlength="120" placeholder="e.g. Eagles vs Tigers"></label>
-          <label class="field"><span>What do you need? <b>*</b></span><select name="service" required><option value="" disabled selected>Select a service</option><option>Video shoot</option><option>Video editing</option><option>Sports highlights</option><option>Event coverage</option><option>Music video</option><option>Photography</option><option>Other</option></select></label>
-          <label class="field"><span>Preferred date <b>*</b></span><input name="requested_date" type="date" required></label>
-          <label class="field"><span>Start time <b>*</b></span><input name="requested_time" type="time" required></label>
-          <label class="field"><span>Where is it happening? <b>*</b></span><input name="location" required maxlength="200" placeholder="Venue, city, or address"></label>
-          <label class="field"><span>Budget range <small>optional</small></span><select name="budget_range"><option value="">Prefer not to say</option><option>Under $100</option><option>$100–$250</option><option>$250–$500</option><option>$500–$1,000</option><option>$1,000+</option><option>Let’s discuss</option></select></label>
-          <label class="field"><span>Where did you find us? <small>optional</small></span><select name="referral_source"><option value="">Select one</option><option>Instagram</option><option>TikTok</option><option>YouTube</option><option>Referral</option><option>Website</option><option>Other</option></select></label>
+        <div class="booking-progress" aria-label="Booking steps">
+          <div class="booking-progress-track"><span id="booking-progress-fill"></span></div>
+          <div class="booking-progress-steps">
+            <span class="booking-step-indicator active" data-step-indicator="0"><b>1</b><small>Service</small></span>
+            <span class="booking-step-indicator" data-step-indicator="1"><b>2</b><small>Date &amp; place</small></span>
+            <span class="booking-step-indicator" data-step-indicator="2"><b>3</b><small>Your details</small></span>
+            <span class="booking-step-indicator" data-step-indicator="3"><b>4</b><small>Review</small></span>
+          </div>
         </div>
-        <label class="field message-field"><span>Tell us about the project <b>*</b></span><textarea name="project_details" required maxlength="3000" rows="5" placeholder="What are you imagining? Share the vibe, key moments, references, deadlines, or anything else that helps us understand your vision."></textarea><small class="field-help">Please don’t include sensitive personal information.</small></label>
-        <label class="consent"><input type="checkbox" required><span>I understand this is a request and my booking is not confirmed until Cinematiclife.17 approves it.</span></label>
-        <button class="button button-primary submit-button" type="submit"><span>Submit project request</span><span aria-hidden="true">↗</span></button>
+        <section class="booking-step-panel active" data-step="0" aria-labelledby="step-service-title">
+          <div class="booking-step-title"><p class="eyebrow">STEP 1 OF 4</p><h3 id="step-service-title">What are we creating?</h3><p>Choose the service and give your project a name.</p></div>
+          <div class="field-grid">
+            <label class="field"><span>What do you need? <b>*</b></span><select name="service" required><option value="" disabled selected>Select a service</option><option>Video shoot</option><option>Video editing</option><option>Sports highlights</option><option>Event coverage</option><option>Music video</option><option>Photography</option><option>Other</option></select></label>
+            <label class="field"><span>Event or project name <b>*</b></span><input name="event_name" required maxlength="120" placeholder="e.g. Eagles vs Tigers"></label>
+            <label class="field"><span>Tell us about the project <b>*</b></span><textarea name="project_details" required maxlength="3000" rows="5" placeholder="What are you imagining? Share the vibe, key moments, references, deadlines, or anything else that helps us understand your vision."></textarea><small class="field-help">Please don’t include sensitive personal information.</small></label>
+          </div>
+        </section>
+        <section class="booking-step-panel" data-step="1" aria-labelledby="step-date-title" hidden>
+          <div class="booking-step-title"><p class="eyebrow">STEP 2 OF 4</p><h3 id="step-date-title">When and where?</h3><p>These are your preferred details, not a live availability confirmation.</p></div>
+          <div class="field-grid">
+            <label class="field"><span>Preferred date <b>*</b></span><input name="requested_date" type="date" required></label>
+            <label class="field"><span>Start time <b>*</b></span><input name="requested_time" type="time" required></label>
+            <label class="field"><span>Where is it happening? <b>*</b></span><input name="location" required maxlength="200" placeholder="Venue, city, or address"></label>
+          </div>
+        </section>
+        <section class="booking-step-panel" data-step="2" aria-labelledby="step-details-title" hidden>
+          <div class="booking-step-title"><p class="eyebrow">STEP 3 OF 4</p><h3 id="step-details-title">How can we reach you?</h3><p>Add your contact details and anything else you’d like to share.</p></div>
+          <div class="field-grid">
+            <label class="field"><span>Your name <b>*</b></span><input name="client_name" autocomplete="name" required maxlength="100" placeholder="Full name"></label>
+            <label class="field"><span>Email address <b>*</b></span><input name="client_email" type="email" autocomplete="email" required maxlength="254" placeholder="you@example.com"></label>
+            <label class="field"><span>Phone number <small>optional</small></span><input name="client_phone" type="tel" autocomplete="tel" maxlength="40" placeholder="Best number to reach you"></label>
+            <label class="field"><span>Budget range <small>optional</small></span><select name="budget_range"><option value="">Prefer not to say</option><option>Under $100</option><option>$100–$250</option><option>$250–$500</option><option>$500–$1,000</option><option>$1,000+</option><option>Let’s discuss</option></select></label>
+            <label class="field"><span>Where did you find us? <small>optional</small></span><select name="referral_source"><option value="">Select one</option><option>Instagram</option><option>TikTok</option><option>YouTube</option><option>Referral</option><option>Website</option><option>Other</option></select></label>
+          </div>
+        </section>
+        <section class="booking-step-panel" data-step="3" aria-labelledby="step-review-title" hidden>
+          <div class="booking-step-title"><p class="eyebrow">STEP 4 OF 4</p><h3 id="step-review-title">Review your request</h3><p>Check everything before sending. You can go back to make changes.</p></div>
+          <div id="booking-review-summary" class="booking-review-summary"></div>
+          <label class="consent"><input type="checkbox" name="booking_consent" required><span>I understand this is a request and my booking is not confirmed until Cinematiclife.17 approves it.</span></label>
+        </section>
+        <div class="booking-step-actions">
+          <button class="button button-secondary" id="booking-back" type="button" hidden>← Back</button>
+          <span class="booking-step-spacer"></span>
+          <button class="button button-primary" id="booking-continue" type="button"><span>Continue</span><span aria-hidden="true">→</span></button>
+          <button class="button button-primary submit-button" id="booking-submit" type="submit" hidden><span>Submit project request</span><span aria-hidden="true">↗</span></button>
+        </div>
         <p id="form-status" class="status-message" role="status" aria-live="polite"></p>
         <p class="privacy-note"><span aria-hidden="true">🔒</span> Your details are only used to review and respond to your request.</p>
       </form>
@@ -73,6 +104,6 @@
       <p class="error-overlay-note">If you were submitting a booking, check the dashboard before trying again to avoid duplicate requests.</p>
     </div>
   </section>
-\n  <script type="module" src="app.js?v=13"></script>
+\n  <script type="module" src="app.js?v=14"></script>
 </body>
 </html>
