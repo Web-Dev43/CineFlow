@@ -284,12 +284,12 @@ function renderBookings() {
           '</span></div>'
         : "";
     const buttons = status === "pending"
-      ? '<button class="approve" data-action="approved" data-id="' + escapeHtml(item.id) + '">Read & Accept</button><button data-action="declined" data-id="' + escapeHtml(item.id) + '">Decline</button>'
+      ? '<button data-action="read" data-id="' + escapeHtml(item.id) + '">Mark as read</button><button class="approve" data-action="approved" data-id="' + escapeHtml(item.id) + '">Accept booking</button><button data-action="declined" data-id="' + escapeHtml(item.id) + '">Decline</button>'
       : status === "read"
-        ? '<button data-action="declined" data-id="' + escapeHtml(item.id) + '">Decline</button><button data-action="approved" data-id="' + escapeHtml(item.id) + '">Accept booking</button>'
+        ? '<button class="approve" data-action="approved" data-id="' + escapeHtml(item.id) + '">Accept booking</button><button data-action="declined" data-id="' + escapeHtml(item.id) + '">Decline</button>'
         : status === "approved"
-          ? '<button data-action="declined" data-id="' + escapeHtml(item.id) + '">Decline</button><button data-action="cancelled" data-id="' + escapeHtml(item.id) + '">Cancel booking</button>'
-          : '<button data-action="approved" data-id="' + escapeHtml(item.id) + '">Accept booking</button>';
+          ? '<button data-action="cancelled" data-id="' + escapeHtml(item.id) + '">Cancel booking</button><button data-action="declined" data-id="' + escapeHtml(item.id) + '">Decline</button>'
+          : '<button class="approve" data-action="approved" data-id="' + escapeHtml(item.id) + '">Re-accept booking</button>';
     return '<article class="booking-card"><div class="booking-card-top"><div><h3>' + escapeHtml(item.client_name) + ' <span style="color:var(--muted);font-weight:400">· ' + escapeHtml(item.service) + '</span></h3><div class="booking-meta">' + escapeHtml(item.client_email) + '<br>Received ' + escapeHtml(new Date(item.created_at).toLocaleString()) + '</div></div><span class="status-pill ' + status + '">' + escapeHtml(status === "approved" ? "accepted" : status) + '</span></div>' + conflictNotice + '<div class="booking-details">' + escapeHtml(details) + "\n\nProject details:\n" + escapeHtml(item.project_details || "Not provided") + '</div>' + '<div class="booking-actions">' + buttons + '</div></article>';
   }).join("");
 }
@@ -415,11 +415,18 @@ document.querySelector("#filters").addEventListener("click", event => {
 });
 bookingList.addEventListener("click", async event => {
   const button = event.target.closest("[data-action]");
-  if (!button || !supabase) return;
+  if (!button || !supabase || button.disabled) return;
   const id = button.dataset.id;
   const status = button.dataset.action;
-  const selectedBooking = bookings.find(item => item.id === id);
-  if (!selectedBooking) return;
+  const selectedBooking = bookings.find(item => String(item.id) === String(id));
+  if (!selectedBooking) {
+    showMessage(dashboardMessage, "This booking is no longer in the current list. Refresh and try again.", true);
+    return;
+  }
+
+  if (status === "declined" && !window.confirm("Decline this booking request? The status will be saved, but CineFlow will not automatically email the client about a decline.")) return;
+  if (status === "cancelled" && !window.confirm("Cancel this accepted booking? The status will be saved, but you should contact the client yourself.")) return;
+
   if (status === "approved") {
     const conflicts = findScheduleConflicts(selectedBooking);
     if (conflicts.length) {
@@ -428,57 +435,48 @@ bookingList.addEventListener("click", async event => {
       const overlap = conflicts.map(item =>
         (item.conflictLevel === "super-important" ? "[SUPER IMPORTANT: SAME TIME] " : "[IMPORTANT: SAME DAY] ") +
         (item.event_name || item.service || "Project") + " — " + niceDate(item.requested_date) + " at " + niceTime(item.requested_time)
-      ).join("\\n");
+      ).join("\n");
       const severity = exact.length
         ? "SUPER IMPORTANT: " + exact.length + " accepted booking(s) already have this exact date and start time."
         : "IMPORTANT: accepted booking(s) already exist on this date, but the time differs or needs checking.";
-      const message = severity + (review.length ? "\\nThere are also " + review.length + " same-day booking(s) to review." : "") +
-        "\\n\\n" + overlap + "\\n\\nCheck the schedule before accepting. The request will remain unchanged if you cancel.";
-      if (!window.confirm(message + "\\n\\nAccept this booking anyway?")) return;
+      const message = severity + (review.length ? "\nThere are also " + review.length + " same-day booking(s) to review." : "") +
+        "\n\n" + overlap + "\n\nCheck the schedule before accepting. The request will remain unchanged if you cancel.";
+      if (!window.confirm(message + "\n\nAccept this booking anyway?")) return;
     }
   }
-  button.disabled = true;
+
+  const actionButtons = button.closest(".booking-actions");
+  const previousLabel = button.textContent;
+  if (actionButtons) actionButtons.querySelectorAll("button").forEach(item => { item.disabled = true; });
+  button.textContent = status === "approved" ? "Accepting…" : status === "declined" ? "Declining…" : status === "cancelled" ? "Cancelling…" : "Saving…";
+  showMessage(dashboardMessage, "Saving booking update…");
   try {
-    const update = {status, decline_reason: null};
-    const {error} = await supabase.from("bookings").update(update).eq("id", id);
+    const { data, error } = await supabase.from("bookings").update({ status, decline_reason: null }).eq("id", id).select("id,status").maybeSingle();
     if (error) throw error;
-    if (status === "approved") {
-      try { await callEmail({action:"booking-status",bookingId:id}, true); } catch (emailError) { console.warn("Status email could not be confirmed:",emailError); }
-    }
-    showMessage(dashboardMessage, status === "approved" ? "Booking accepted." : status === "read" ? "Request marked as read." : status === "declined" ? "Request declined." : status === "cancelled" ? "Booking cancelled." : "Booking updated.");
-    await loadBookings();
-  } catch (error) {
-    showMessage(dashboardMessage, "Couldn't update the booking. Check the admin permissions and try again.", true);
-    button.disabled = false;
-  }
-  return;
-  if (status === "declined") {
-    if (!selectedBooking) return;
-    window.alert("(Recommended) Email " + selectedBooking.client_email + " to let them know you declined (sorry i couldn't automatically do it, it cost money -Team of Developers: Yuan)");
-  }
-  button.disabled = true;
-  try {
-    const update = {status, decline_reason: null};
-    const {error} = await supabase.from("bookings").update(update).eq("id", id);
-    if (error) throw error;
+    if (!data || data.status !== status) throw new Error("Supabase did not confirm the requested status change. Refresh the list before trying again.");
+
+    let notice = status === "approved" ? "Booking accepted and saved." :
+      status === "read" ? "Request marked as read and moved to Already read." :
+      status === "declined" ? "Booking declined and saved. Please contact the client yourself." :
+      status === "cancelled" ? "Booking cancelled and saved. Please contact the client yourself." :
+      "Booking status updated.";
     let emailWarning = "";
-    if (status !== "read") {
+    if (status === "approved") {
       try {
-        const emailResult = await callEmail({ action: "booking-status", bookingId: id }, true);
-        if (!emailResult.ok || Number(emailResult.sent) < 1) {
-          console.warn("CineFlow status email could not be confirmed:", emailResult);
-          emailWarning = " The admin email alert could not be confirmed; check the email setup.";
-        }
+        const result = await callEmail({ action: "booking-status", bookingId: id }, true);
+        if (!result.ok || Number(result.sent) < 1) emailWarning = " The booking was saved, but the customer email could not be confirmed.";
       } catch (emailError) {
-        console.warn("CineFlow status email request failed:", emailError);
-        emailWarning = " The admin email alert could not be confirmed; check the email setup.";
+        console.warn("Booking acceptance email could not be confirmed:", emailError);
+        emailWarning = " The booking was saved, but the customer email could not be confirmed.";
       }
     }
-    showMessage(dashboardMessage, (status === "declined" ? "Booking declined. Remember to email the client yourself." : status === "read" ? "Booking marked as read and moved to Already read. No client email was sent." : "Booking updated and moved to the " + status + " tab.") + emailWarning, Boolean(emailWarning));
+    showMessage(dashboardMessage, notice + emailWarning, Boolean(emailWarning));
     await loadBookings();
   } catch (error) {
-    showMessage(dashboardMessage, "Couldn't update this booking. Check admin permissions and try again.", true);
-    button.disabled = false;
+    console.error("CineFlow booking status update failed:", error);
+    showMessage(dashboardMessage, "Couldn't confirm the booking update: " + (error.message || "Unknown error") + " Refresh the list and check the status before retrying.", true);
+    if (actionButtons) actionButtons.querySelectorAll("button").forEach(item => { item.disabled = false; });
+    button.textContent = previousLabel;
   }
 });
 
