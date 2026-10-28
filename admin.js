@@ -18,6 +18,7 @@ const calendarDayBookings = document.querySelector("#calendar-day-bookings");
 const calendarSelectedLabel = document.querySelector("#calendar-selected-label");
 let currentFilter = "pending";
 let bookings = [];
+let bookingSearch = "";
 const today = new Date();
 const calendarStart = new Date(today.getFullYear(), today.getMonth(), 1);
 const calendarEnd = new Date(today.getFullYear() + 5, today.getMonth(), 1);
@@ -216,12 +217,29 @@ async function loadBookings() {
     return;
   }
   bookings = data || [];
+  updateBookingStats();
   showMessage(dashboardMessage, bookings.length ? bookings.length + " booking" + (bookings.length === 1 ? "" : "s") + " total. New requests start as pending." : "No bookings yet. New client requests will appear here.");
   renderBookings();
   renderCalendar();
 }
+function updateBookingStats() {
+  const count = status => bookings.filter(item => item.status === status).length;
+  const set = (id, value) => { const node = document.querySelector(id); if (node) node.textContent = String(value); };
+  set("#stat-total", bookings.length);
+  set("#stat-pending", count("pending"));
+  set("#stat-approved", count("approved"));
+  set("#stat-declined", count("declined"));
+}
 function renderBookings() {
-  const visible = bookings.filter(item => item.status === currentFilter);
+  const query = bookingSearch.trim().toLocaleLowerCase();
+  const visible = bookings.filter(item => {
+    if (item.status !== currentFilter) return false;
+    if (!query) return true;
+    return [item.client_name, item.client_email, item.service, item.event_name, item.location, item.project_details, item.client_phone]
+      .some(value => String(value || "").toLocaleLowerCase().includes(query));
+  });
+  const searchCount = document.querySelector("#search-count");
+  if (searchCount) searchCount.textContent = query ? visible.length + " match" + (visible.length === 1 ? "" : "es") : "";
   if (!visible.length) {
     bookingList.innerHTML = '<div class="empty-state">No ' + escapeHtml(currentFilter) + ' bookings right now.</div>';
     return;
@@ -350,6 +368,10 @@ if (enablePushButton) {
   // Keep the message in sync when returning to the admin dashboard.
   refreshPushStatus();
 }
+document.querySelector("#booking-search")?.addEventListener("input", event => {
+  bookingSearch = event.target.value;
+  renderBookings();
+});
 document.querySelector("#filters").addEventListener("click", event => {
   const button = event.target.closest("[data-filter]");
   if (!button) return;
