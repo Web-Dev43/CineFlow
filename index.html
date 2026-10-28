@@ -22,26 +22,14 @@
   </header>
 
   <main class="page-shell">
-    <div class="hero-layout">
-      <section class="intro">
-        <p class="eyebrow"><span class="eyebrow-dot"></span> YOUR NEXT PROJECT STARTS HERE</p>
-        <h1>Let’s make<br><span>something that moves.</span></h1>
-        <p class="intro-copy">Big idea, special moment, game-day highlight? Tell us what you’re imagining. We’ll take it from there.</p>
-        <div class="service-tags" aria-label="Available services">
-          <span>Video shoots</span><span>Video editing</span><span>Sports highlights</span><span>Events</span><span>Music videos</span><span>Photography</span>
-        </div>
-      </section>
-      <aside class="process-card" aria-label="How booking works">
-        <div class="process-card-top"><span class="process-icon" aria-hidden="true">✳</span><span class="process-kicker">THE CREATIVE PROCESS</span></div>
-        <p class="process-title">From first idea<br>to final frame.</p>
-        <ol class="process-steps">
-          <li><span>01</span><div><strong>Tell us your vision</strong><small>Share the details and your preferred date.</small></div></li>
-          <li><span>02</span><div><strong>We review your request</strong><small>We’ll check the details and availability.</small></div></li>
-          <li><span>03</span><div><strong>Make it happen</strong><small>Your booking is confirmed after approval.</small></div></li>
-        </ol>
-        <p class="process-footnote"><span aria-hidden="true">●</span> Every great project starts somewhere.</p>
-      </aside>
-    </div>
+    <section class="booking-first-intro" aria-label="CineFlow booking">
+      <div>
+        <p class="eyebrow"><span class="eyebrow-dot"></span> CINEFLOW BOOKING</p>
+        <h1>Book your next<br><span>cinematic project.</span></h1>
+        <p class="intro-copy">Choose what you need and tell us the details. Your request will be reviewed before it’s confirmed.</p>
+      </div>
+      <div class="booking-trust"><span class="booking-trust-icon">✓</span><span><strong>Simple, direct booking</strong><small>No account needed · No payment collected here</small></span></div>
+    </section>
 
     <section class="form-card" aria-labelledby="booking-title">
       <div class="form-heading"><div><p class="eyebrow">BOOKING REQUEST</p><h2 id="booking-title">Let’s plan your project</h2></div><span class="step-label">STEP 01 <span aria-hidden="true">/</span> YOUR REQUEST</span></div>
@@ -66,7 +54,9 @@
         <p class="privacy-note"><span aria-hidden="true">🔒</span> Your details are only used to review and respond to your request.</p>
       </form>
     </section>
-<section class="reviews-section" id="reviews" aria-labelledby="reviews-title"><div class="reviews-heading"><div><p class="eyebrow">REAL WORDS, REAL PEOPLE</p><h2 id="reviews-title">Customer reviews</h2><p class="reviews-intro">Only real submissions approved for display appear here. No made-up testimonials.</p></div><a class="text-link" href="#leave-review">Share your experience ↗</a></div><div id="reviews-list" class="reviews-list" aria-live="polite"><p class="reviews-empty">Loading reviews…</p></div><div class="review-form-card" id="leave-review"><p class="eyebrow">YOUR EXPERIENCE</p><h3>Leave a review</h3><p class="review-form-note">Reviews are checked before appearing publicly. Please be honest and don’t include private information.</p><form id="review-form"><div class="review-fields"><label class="field"><span>Your name <b>*</b></span><input name="reviewer_name" required maxlength="80" autocomplete="name" placeholder="Name to display"></label><label class="field"><span>Rating <b>*</b></span><select name="rating" required><option value="" selected disabled>Choose a rating</option><option value="5">★★★★★ — Loved it</option><option value="4">★★★★☆ — Great</option><option value="3">★★★☆☆ — Good</option><option value="2">★★☆☆☆ — Could be better</option><option value="1">★☆☆☆☆ — Not satisfied</option></select></label></div><label class="field review-text-field"><span>Your review <b>*</b></span><textarea name="review_text" required minlength="5" maxlength="1200" rows="4" placeholder="Tell others about your experience…"></textarea></label><label class="review-honeypot" aria-hidden="true">Leave empty<input name="website" tabindex="-1" autocomplete="off"></label><button class="button button-primary" id="review-submit" type="submit"><span>Submit review for approval</span><span>↗</span></button><p id="review-status" class="status-message" role="status" aria-live="polite"></p></form></div></section>\n    <footer class="site-footer"><span>© <span id="year"></span> CineFlow</span><span>Made for the next frame.</span><button id="report-issue" class="ghost-button" type="button">Report an issue</button></footer>
+<section class="reviews-section" id="reviews" aria-labelledby="reviews-title"><div class="reviews-heading"><div><p class="eyebrow">REAL WORDS, REAL PEOPLE</p><h2 id="reviews-title">Customer reviews</h2><p class="reviews-intro">Only real submissions approved for display appear here. No made-up testimonials.</p></div><a class="text-link" href="#leave-review">Share your experience ↗</a></div><div id="reviews-list" class="reviews-list" aria-live="polite"><p class="reviews-empty">Loading reviews…</p></div><div class="review-form-card" id="leave-review"><p class="eyebrow">YOUR EXPERIENCE</p><h3>Leave a review</h3><p class="review-form-note">Reviews are checked before appearing publicly. Please be honest and don’t include private information.</p><form id="review-form"><div class="review-fields"><label class="field"><span>Your name <b>*</b></span><input name="reviewer_name" required maxlength="80" autocomplete="name" placeholder="Name to display"></label><label class="field"><span>Rating <b>*</b></span><select name="rating" required><option value="" selected disabled>Choose a rating</option><option value="5">★★★★★ — Loved it</option><option value="4">★★★★☆ — Great</option><option value="3">★★★☆☆ — Good</option><option value="2">★★☆☆☆ — Could be better</option><option value="1">★☆☆☆☆ — Not satisfied</option></select></label></div><label class="field review-text-field"><span>Your review <b>*</b></span><textarea name="review_text" required minlength="5" maxlength="1200" rows="4" placeholder="Tell others about your experience…"></textarea></label><label class="review-honeypot" aria-hidden="true">Leave empty<input name="website" tabindex="-1" autocomplete="off"></label><button class="button button-primary" id="review-submit" type="submit"><span>Submit review for approval</span><span>↗</span></button><p id="review-status" class="status-message" role="status" aria-live="polite"></p></form></div></section>
+
+    <footer class="site-footer"><span>© <span id="year"></span> CineFlow</span><span>Made for the next frame.</span><button id="report-issue" class="ghost-button" type="button">Report an issue</button></footer>
   </main>
 
   <section id="error-overlay" class="error-overlay" role="alertdialog" aria-modal="true" aria-labelledby="error-overlay-title" aria-describedby="error-overlay-summary" hidden>
