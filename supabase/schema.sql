@@ -22,6 +22,8 @@ create table if not exists public.bookings (
   project_details text not null check (char_length(trim(project_details)) between 1 and 3000),
   status text not null default 'pending' check (status in ('pending','read','approved','declined','cancelled')),
   decline_reason text,
+  agreed_price numeric(10,2) check (agreed_price is null or agreed_price >= 0),
+  payment_status text not null default 'not_requested' check (payment_status in ('not_requested','awaiting_payment','awaiting_verification','paid_verified','refunded','disputed')),
   client_push_token text,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
