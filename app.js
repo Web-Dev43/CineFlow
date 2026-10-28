@@ -188,12 +188,11 @@ form.addEventListener("submit", async (event) => {
       throw new Error("Supabase returned HTTP " + response.status + (reason ? ":\n" + reason : ". No error message was returned."));
     }
     form.reset();
-    let message = "Request sent! It is pending review, so your date is not confirmed until Cinematiclife.17 approves it.";
+    const message = "Request sent! It is pending review, so your date is not confirmed until Cinematiclife.17 approves it.";
     try {
-      message += "\n\n" + await subscribeClient(token);
+      await subscribeClient(token);
     } catch (pushError) {
       console.warn("CineFlow client push subscription failed:", pushError);
-      message += "\n\nYour request was saved, but notifications could not be enabled on this device.";
     }
     setStatus(message);
   } catch (error) {
