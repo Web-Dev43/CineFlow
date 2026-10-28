@@ -9,6 +9,7 @@ const configured = Boolean(config.supabaseUrl && config.supabasePublishableKey &
   !config.supabasePublishableKey.includes("YOUR_SUPABASE"));
 const REST_URL = configured ? config.supabaseUrl.replace(/\/$/, "") + "/rest/v1/bookings" : "";
 const PUSH_URL = config.supabaseUrl ? config.supabaseUrl.replace(/\/$/, "") + "/functions/v1/cineflow-push" : "";
+const EMAIL_URL = config.supabaseUrl ? config.supabaseUrl.replace(/\/$/, "") + "/functions/v1/cineflow-email" : "";
 const PUSH_KEY = config.vapidPublicKey || "";
 
 
@@ -189,13 +190,30 @@ form.addEventListener("submit", async (event) => {
       throw new Error("Supabase returned HTTP " + response.status + (reason ? ":\n" + reason : ". No error message was returned."));
     }
     form.reset();
-    const message = "Request sent! Keep an eye on " + data.client_email.trim() + " for any updates from Cinematiclife.17.";
+    let adminEmailSent = false;
+    try {
+      const emailResponse = await fetch(EMAIL_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "apikey": config.supabasePublishableKey
+        },
+        body: JSON.stringify({ action: "new-booking", token })
+      });
+      const emailResult = await emailResponse.json().catch(() => ({}));
+      adminEmailSent = emailResponse.ok && emailResult.ok === true && Number(emailResult.sent) > 0;
+      if (!adminEmailSent) console.warn("CineFlow admin email could not be confirmed:", emailResult);
+    } catch (emailError) {
+      console.warn("CineFlow admin email request failed:", emailError);
+    }
+    const message = "Request sent! Keep an eye on " + data.client_email.trim() + " for any updates from Cinematiclife.17." +
+      (adminEmailSent ? "" : " The booking was saved, but the admin email could not be confirmed.");
     try {
       await subscribeClient(token);
     } catch (pushError) {
       console.warn("CineFlow client push subscription failed:", pushError);
     }
-    setStatus(message);
+    setStatus(message, !adminEmailSent);
   } catch (error) {
     console.error("CineFlow booking submission failed:", error);
     showErrorOverlay("Booking request failed", error instanceof Error ? error : String(error || "Unknown submission error"));
