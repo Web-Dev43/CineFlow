@@ -269,6 +269,8 @@ function renderBookings() {
 function renderCalendar() {
   if (!calendarGrid) return;
   calendarHeading.textContent = new Intl.DateTimeFormat(undefined, {month:"long", year:"numeric"}).format(calendarMonth);
+  const todayButton = document.querySelector("#calendar-today");
+  if (todayButton) todayButton.disabled = calendarMonth.getFullYear() === today.getFullYear() && calendarMonth.getMonth() === today.getMonth();
   const previous = document.querySelector("#calendar-previous");
   const next = document.querySelector("#calendar-next");
   previous.disabled = calendarMonth <= calendarStart;
@@ -300,7 +302,7 @@ function renderCalendarDay() {
   const dayBookings = bookings.filter(item => item.status === "approved" && item.requested_date === selectedCalendarDate)
     .sort((a,b) => (a.created_at || "").localeCompare(b.created_at || ""));
   if (!dayBookings.length) {
-    calendarDayBookings.innerHTML = '<div class="empty-state">No bookings for this date.</div>';
+    calendarDayBookings.innerHTML = '<div class="empty-state">No accepted bookings for this date. Select a highlighted date to review scheduled work.</div>';
     return;
   }
   calendarDayBookings.innerHTML = dayBookings.map(item => {
@@ -308,6 +310,11 @@ function renderCalendarDay() {
     return '<article class="calendar-booking"><div><strong>' + escapeHtml(item.event_name || item.service || "Project") + '</strong><span>' + escapeHtml(item.service) + ' · ' + escapeHtml(niceTime(item.requested_time)) + '</span></div><span class="status-pill ' + status + '">' + escapeHtml(status === "approved" ? "accepted" : status) + '</span><p>' + escapeHtml(item.client_name) + ' · ' + escapeHtml(item.client_email) + '</p><p>Where: ' + escapeHtml(item.location || "Not provided") + '</p>' + (status === "declined" && item.decline_reason ? '<p class="decline-reason"><strong>Decline reason:</strong> ' + escapeHtml(item.decline_reason) + '</p>' : '') + '</article>';
   }).join("");
 }
+document.querySelector("#calendar-today")?.addEventListener("click", () => {
+  calendarMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+  selectedCalendarDate = dateKey(today);
+  renderCalendar();
+});
 document.querySelector("#calendar-previous").addEventListener("click", () => {
   const target = new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() - 1, 1);
   if (target >= calendarStart) { calendarMonth = target; selectedCalendarDate = dateKey(target); renderCalendar(); }
