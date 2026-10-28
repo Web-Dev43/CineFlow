@@ -188,7 +188,7 @@ form.addEventListener("submit", async (event) => {
       throw new Error("Supabase returned HTTP " + response.status + (reason ? ":\n" + reason : ". No error message was returned."));
     }
     form.reset();
-    const message = "Request sent! Your booking is accepted.";
+    const message = "Request sent! Keep an eye on " + data.client_email.trim() + " for any updates from Cinematiclife.17.";
     try {
       await subscribeClient(token);
     } catch (pushError) {
