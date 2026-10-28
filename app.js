@@ -46,6 +46,93 @@ function setStatus(message, error = false) {
   statusBox.textContent = message;
   statusBox.classList.toggle("error", error);
 }
+
+/* Four-step booking flow: validate each panel and build a final review summary. */
+const bookingPanels = [...form.querySelectorAll("[data-step]")];
+const stepIndicators = [...document.querySelectorAll("[data-step-indicator]")];
+const continueButton = document.querySelector("#booking-continue");
+const backButton = document.querySelector("#booking-back");
+const progressFill = document.querySelector("#booking-progress-fill");
+const reviewSummary = document.querySelector("#booking-review-summary");
+let activeBookingStep = 0;
+const reviewFields = [
+  ["Service", "service"], ["Project", "event_name"], ["Project details", "project_details"],
+  ["Preferred date", "requested_date"], ["Start time", "requested_time"], ["Location", "location"],
+  ["Name", "client_name"], ["Email", "client_email"], ["Phone", "client_phone"],
+  ["Budget", "budget_range"], ["How you found us", "referral_source"]
+];
+function updateBookingStep() {
+  bookingPanels.forEach((panel, index) => {
+    const active = index === activeBookingStep;
+    panel.hidden = !active;
+    panel.classList.toggle("active", active);
+  });
+  stepIndicators.forEach((indicator, index) => {
+    indicator.classList.toggle("active", index === activeBookingStep);
+    indicator.classList.toggle("complete", index < activeBookingStep);
+    if (index === activeBookingStep) indicator.setAttribute("aria-current", "step");
+    else indicator.removeAttribute("aria-current");
+  });
+  if (progressFill) progressFill.style.width = (activeBookingStep / (bookingPanels.length - 1) * 100) + "%";
+  backButton.hidden = activeBookingStep === 0;
+  continueButton.hidden = activeBookingStep === bookingPanels.length - 1;
+  submitButton.hidden = activeBookingStep !== bookingPanels.length - 1;
+  document.querySelector("#booking-title").textContent = activeBookingStep === 3 ? "Your request, ready to send" : "Let’s plan your project";
+  if (activeBookingStep === 3) renderBookingReview();
+}
+function renderBookingReview() {
+  if (!reviewSummary) return;
+  reviewSummary.replaceChildren();
+  const values = new FormData(form);
+  reviewFields.forEach(([label, name]) => {
+    const value = String(values.get(name) || "").trim();
+    if (!value) return;
+    const row = document.createElement("div");
+    row.className = "booking-review-row";
+    const key = document.createElement("span");
+    key.textContent = label;
+    const content = document.createElement("strong");
+    content.textContent = value;
+    row.append(key, content);
+    reviewSummary.append(row);
+  });
+}
+function validateBookingStep() {
+  const panel = bookingPanels[activeBookingStep];
+  const fields = [...panel.querySelectorAll("input, select, textarea")];
+  for (const field of fields) {
+    if (!field.checkValidity()) {
+      field.reportValidity();
+      field.focus();
+      return false;
+    }
+  }
+  return true;
+}
+continueButton?.addEventListener("click", () => {
+  if (!validateBookingStep()) return;
+  activeBookingStep = Math.min(activeBookingStep + 1, bookingPanels.length - 1);
+  setStatus("");
+  updateBookingStep();
+  document.querySelector(".form-card").scrollIntoView({behavior:"smooth",block:"start"});
+});
+backButton?.addEventListener("click", () => {
+  activeBookingStep = Math.max(0, activeBookingStep - 1);
+  setStatus("");
+  updateBookingStep();
+  document.querySelector(".form-card").scrollIntoView({behavior:"smooth",block:"start"});
+});
+form.querySelectorAll("input, select, textarea").forEach(field => {
+  field.addEventListener("input", () => { if (activeBookingStep === 3) renderBookingReview(); });
+  field.addEventListener("change", () => { if (activeBookingStep === 3) renderBookingReview(); });
+});
+const requestedDateField = form.querySelector('[name="requested_date"]');
+if (requestedDateField) {
+  const localToday = new Date();
+  requestedDateField.min = [localToday.getFullYear(), String(localToday.getMonth()+1).padStart(2,"0"), String(localToday.getDate()).padStart(2,"0")].join("-");
+}
+updateBookingStep();
+
 function showErrorOverlay(title, details) {
   const overlay = document.querySelector("#error-overlay");
   const heading = document.querySelector("#error-overlay-title");
