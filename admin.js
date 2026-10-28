@@ -243,7 +243,7 @@ function renderBookings() {
       : status === "pending"
         ? '<button class="approve" data-action="approved" data-id="' + escapeHtml(item.id) + '">Accept</button><button data-action="declined" data-id="' + escapeHtml(item.id) + '">Decline</button>'
         : '<button data-action="approved" data-id="' + escapeHtml(item.id) + '">Mark as accepted</button>';
-    return '<article class="booking-card"><div class="booking-card-top"><div><h3>' + escapeHtml(item.client_name) + ' <span style="color:var(--muted);font-weight:400">· ' + escapeHtml(item.service) + '</span></h3><div class="booking-meta">' + escapeHtml(item.client_email) + '<br>Received ' + escapeHtml(new Date(item.created_at).toLocaleString()) + '</div></div><span class="status-pill ' + status + '">' + escapeHtml(status) + '</span></div><div class="booking-details">' + escapeHtml(details) + "\n\n" + escapeHtml(item.project_details) + '</div><div class="booking-actions">' + buttons + '</div></article>';
+    return '<article class="booking-card"><div class="booking-card-top"><div><h3>' + escapeHtml(item.client_name) + ' <span style="color:var(--muted);font-weight:400">· ' + escapeHtml(item.service) + '</span></h3><div class="booking-meta">' + escapeHtml(item.client_email) + '<br>Received ' + escapeHtml(new Date(item.created_at).toLocaleString()) + '</div></div><span class="status-pill ' + status + '">' + escapeHtml(status === "approved" ? "accepted" : status) + '</span></div><div class="booking-details">' + escapeHtml(details) + "\n\n" + escapeHtml(item.project_details) + '</div><div class="booking-actions">' + buttons + '</div></article>';
   }).join("");
 }
 function renderCalendar() {
@@ -285,7 +285,7 @@ function renderCalendarDay() {
   }
   calendarDayBookings.innerHTML = dayBookings.map(item => {
     const status = ["pending","approved","declined","cancelled"].includes(item.status) ? item.status : "pending";
-    return '<article class="calendar-booking"><div><strong>' + escapeHtml(item.event_name || item.service || "Project") + '</strong><span>' + escapeHtml(item.service) + ' · ' + escapeHtml(niceTime(item.requested_time)) + '</span></div><span class="status-pill ' + status + '">' + escapeHtml(status) + '</span><p>' + escapeHtml(item.client_name) + ' · ' + escapeHtml(item.client_email) + '</p><p>Where: ' + escapeHtml(item.location || "Not provided") + '</p>' + (status === "declined" && item.decline_reason ? '<p class="decline-reason"><strong>Decline reason:</strong> ' + escapeHtml(item.decline_reason) + '</p>' : '') + '</article>';
+    return '<article class="calendar-booking"><div><strong>' + escapeHtml(item.event_name || item.service || "Project") + '</strong><span>' + escapeHtml(item.service) + ' · ' + escapeHtml(niceTime(item.requested_time)) + '</span></div><span class="status-pill ' + status + '">' + escapeHtml(status === "approved" ? "accepted" : status) + '</span><p>' + escapeHtml(item.client_name) + ' · ' + escapeHtml(item.client_email) + '</p><p>Where: ' + escapeHtml(item.location || "Not provided") + '</p>' + (status === "declined" && item.decline_reason ? '<p class="decline-reason"><strong>Decline reason:</strong> ' + escapeHtml(item.decline_reason) + '</p>' : '') + '</article>';
   }).join("");
 }
 document.querySelector("#calendar-previous").addEventListener("click", () => {
