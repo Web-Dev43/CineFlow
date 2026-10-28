@@ -442,3 +442,9 @@ body{
 .booking-conflict span{overflow-wrap:anywhere}
 .booking-details{white-space:pre-wrap;overflow-wrap:anywhere}
 @media(max-width:640px){.booking-conflict{padding:11px;font-size:11px}}
+
+
+/* Different severity levels for admin schedule conflicts */
+.booking-conflict-review{border-left-color:#b96b2b;background:#fff0df;color:#713d12}
+.booking-conflict-critical{border-color:#b42318aa;border-left-color:#b42318;background:#ffe5e2;color:#7f1d1d}
+.booking-conflict-critical strong{font-size:13px}
